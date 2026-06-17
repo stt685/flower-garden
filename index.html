@@ -2835,12 +2835,15 @@ function useFertilizer(type) {
 //  SHARE & AD (减负机制)
 // ============================================================
 function shareFlower() {
+  // 关闭所有弹窗，确保分享面板不被遮挡
+  closeAllModals();
+
   if (G.dailyData.shareCount >= 3) { showToast('今日分享次数已用完～'); return; }
 
   var shareText = '🌸 我在「花语花园」养花，快来一起玩吧！🌱';
   var flower = getCurrentFlower();
   if (flower) {
-    shareText = '我在「花语花园」种了一朵' + flower.name + '！快来一起养花吧～ 🌱';
+    shareText = '🌸 我在「花语花园」种了一朵' + flower.emoji + flower.name + '！快来一起养花吧～ 🌱';
   }
 
   function applyShareReward() {
@@ -2856,7 +2859,7 @@ function shareFlower() {
     updateUI();
   }
 
-  // Try Web Share API (supports WeChat on mobile)
+  // Try Web Share API (supports WeChat on mobile — triggers native share panel with WeChat friends)
   if (navigator.share) {
     navigator.share({
       title: '花语花园 🌸',
@@ -2865,14 +2868,15 @@ function shareFlower() {
     }).then(function() {
       applyShareReward();
     }).catch(function(err) {
-      // User cancelled — still give reward
+      // User cancelled or share failed — still give reward for trying
       applyShareReward();
     });
   } else {
-    // Fallback: copy invite text to clipboard
+    // Fallback: copy invite text + link to clipboard
+    var fullText = shareText + '\nhttps://stt685.github.io/flower-garden/';
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(shareText).then(function() {
-        showToast('📋 邀请语已复制，粘贴发给好友吧！');
+      navigator.clipboard.writeText(fullText).then(function() {
+        showToast('📋 邀请语和链接已复制，去微信粘贴发给好友吧！');
         applyShareReward();
       }).catch(function() {
         applyShareReward();
@@ -2980,10 +2984,11 @@ function renderDailyTasks() {
 }
 
 function doTaskAction(action) {
-  closeModal('tasks-modal');
   if (action === 'share') {
-    setTimeout(function() { shareFlower(); }, 300);
+    // 立即触发分享，必须在用户手势回调中直接调用才能唤起微信分享面板
+    shareFlower();
   } else if (action === 'sell') {
+    closeModal('tasks-modal');
     setTimeout(function() { openSellModal(); }, 300);
   }
 }
