@@ -1,0 +1,3594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>花语花园</title>
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============ CSS Variables ============ */
+:root {
+  --bg: #FFF8F0;
+  --card: #FFFFFF;
+  --pot: #D4A373;
+  --soil: #5D4037;
+  --soil-wet: #3E2723;
+  --btn: #F5A97F;
+  --btn-press: #E88F6B;
+  --btn-shadow: #C4956A;
+  --gold: #F9D976;
+  --text: #4A3728;
+  --text-light: #8B7355;
+  --shadow: rgba(74,55,40,0.10);
+  --shadow-md: rgba(74,55,40,0.18);
+  --rare-n: #A8D5BA;
+  --rare-r: #81B5D8;
+  --rare-e: #C9A8D4;
+  --rare-l: #F5D78A;
+  --btn-radius: 50px;
+  --capsule-radius: 20px;
+  --sky-top: #E8F4FD;
+  --sky-mid: #F0F5FF;
+  --sky-bottom: #FFF8F0;
+  --accent-amber: #F59E0B;
+  --water-blue: #60A5FA;
+}
+
+/* ============ Reset & Base ============ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 28%, var(--sky-bottom) 60%, #FEF5EC 100%);
+  color: var(--text);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none; user-select: none;
+  touch-action: manipulation;
+}
+body {
+  display: flex; flex-direction: column; align-items: center;
+  max-width: 480px; margin: 0 auto; position: relative;
+}
+
+/* ============ Loading Screen ============ */
+#loading-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transition: opacity 0.5s, visibility 0.5s;
+}
+#loading-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.loading-sprout {
+  font-size: 80px;
+  animation: sproutPulse 1.2s ease-in-out infinite;
+}
+@keyframes sproutPulse {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.15) rotate(-5deg); }
+  75% { transform: scale(1.1) rotate(5deg); }
+}
+.loading-title {
+  font-size: 32px; font-weight: 800; color: var(--text);
+  margin-top: 20px; letter-spacing: 2px;
+}
+.loading-subtitle {
+  font-size: 16px; color: var(--text-light); margin-top: 8px;
+}
+.loading-bar-wrap {
+  width: 200px; height: 6px; background: rgba(74,55,40,0.1);
+  border-radius: 3px; margin-top: 30px; overflow: hidden;
+}
+.loading-bar-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--rare-n), var(--rare-r), var(--rare-e), var(--rare-l));
+  border-radius: 3px;
+  animation: loadingFill 1.8s ease-out forwards;
+}
+@keyframes loadingFill { to { width: 100%; } }
+
+/* ============ Background Decor ============ */
+.bg-decor {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  max-width: 480px; margin: 0 auto; overflow: hidden;
+}
+.sun {
+  position: absolute; top: 8%; right: 10%;
+  width: 64px; height: 64px; background: radial-gradient(circle at 40% 35%, #FFFDF0 0%, #FEF3C7 40%, #FDE68A 80%, #FCD34D 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 30px 8px rgba(253,230,138,0.4), 0 0 60px 20px rgba(253,230,138,0.25), 0 0 100px 40px rgba(253,230,138,0.12);
+  animation: sunGlow 5s ease-in-out infinite;
+}
+@keyframes sunGlow {
+  0%, 100% { box-shadow: 0 0 30px 8px rgba(253,230,138,0.4), 0 0 60px 20px rgba(253,230,138,0.25), 0 0 100px 40px rgba(253,230,138,0.12); }
+  50% { box-shadow: 0 0 42px 14px rgba(253,230,138,0.5), 0 0 80px 30px rgba(253,230,138,0.32), 0 0 120px 50px rgba(253,230,138,0.18); }
+}
+.cloud {
+  position: absolute; background: rgba(255,255,255,0.7);
+  border-radius: 50%; opacity: 0.8;
+}
+.cloud::before, .cloud::after {
+  content: ''; position: absolute; background: inherit; border-radius: 50%;
+}
+.cloud1 {
+  width: 80px; height: 30px; top: 15%; left: -100px;
+  animation: cloudDrift 22s linear infinite;
+}
+.cloud1::before { width: 35px; height: 35px; top: -18px; left: 15px; }
+.cloud1::after { width: 25px; height: 25px; top: -10px; left: 45px; }
+.cloud2 {
+  width: 65px; height: 24px; top: 25%; left: -80px;
+  animation: cloudDrift 28s linear 8s infinite;
+}
+.cloud2::before { width: 28px; height: 28px; top: -14px; left: 12px; }
+.cloud2::after { width: 20px; height: 20px; top: -8px; left: 35px; }
+.cloud3 {
+  width: 70px; height: 26px; top: 10%; left: -90px;
+  animation: cloudDrift 25s linear 15s infinite;
+}
+.cloud3::before { width: 30px; height: 30px; top: -15px; left: 14px; }
+.cloud3::after { width: 22px; height: 22px; top: -9px; left: 40px; }
+@keyframes cloudDrift {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(480px + 200px)); }
+}
+.grass-hill {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 80px;
+  background: radial-gradient(ellipse 120% 100% at 50% 100%, rgba(168,213,186,0.30) 0%, rgba(168,213,186,0.12) 45%, transparent 70%);
+}
+.grass-hill::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 40px;
+  background: radial-gradient(ellipse 100% 80% at 50% 100%, rgba(120,190,140,0.22) 0%, transparent 65%);
+}
+
+/* ============ Fireflies ============ */
+.firefly {
+  position: absolute; width: 6px; height: 6px; border-radius: 50%;
+  background: #FEF9C3;
+  box-shadow: 0 0 6px 3px rgba(254,249,195,0.7), 0 0 14px 6px rgba(254,240,138,0.35);
+  pointer-events: none;
+}
+.firefly1 { top: 35%; left: 18%; animation: fireflyDrift1 7s ease-in-out infinite; }
+.firefly2 { top: 48%; left: 72%; animation: fireflyDrift2 9s ease-in-out infinite 2s; }
+.firefly3 { top: 55%; left: 38%; animation: fireflyDrift3 8s ease-in-out infinite 4s; }
+.firefly4 { top: 30%; left: 82%; animation: fireflyDrift4 10s ease-in-out infinite 1s; }
+@keyframes fireflyDrift1 {
+  0%, 100% { transform: translate(0, 0); opacity: 0.4; }
+  20% { transform: translate(25px, -20px); opacity: 1; }
+  40% { transform: translate(-18px, -35px); opacity: 0.3; }
+  60% { transform: translate(30px, -12px); opacity: 0.9; }
+  80% { transform: translate(-10px, -28px); opacity: 0.5; }
+}
+@keyframes fireflyDrift2 {
+  0%, 100% { transform: translate(0, 0); opacity: 0.5; }
+  25% { transform: translate(-20px, -25px); opacity: 1; }
+  50% { transform: translate(15px, -40px); opacity: 0.2; }
+  75% { transform: translate(-30px, -15px); opacity: 0.8; }
+}
+@keyframes fireflyDrift3 {
+  0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+  30% { transform: translate(22px, -30px); opacity: 1; }
+  60% { transform: translate(-25px, -10px); opacity: 0.5; }
+  85% { transform: translate(10px, -38px); opacity: 0.9; }
+}
+@keyframes fireflyDrift4 {
+  0%, 100% { transform: translate(0, 0); opacity: 0.6; }
+  20% { transform: translate(-28px, -18px); opacity: 0.2; }
+  45% { transform: translate(18px, -32px); opacity: 1; }
+  70% { transform: translate(-12px, -22px); opacity: 0.4; }
+}
+
+/* ============ Petal Fall ============ */
+.petal {
+  position: fixed; pointer-events: none; z-index: 100;
+  font-size: 20px; opacity: 0.7;
+  animation: petalFall linear forwards;
+}
+@keyframes petalFall {
+  0% { transform: translateY(-50px) rotate(0deg) translateX(0); opacity: 0.7; }
+  100% { transform: translateY(105vh) rotate(720deg) translateX(80px); opacity: 0; }
+}
+
+/* ============ Main Game Screen ============ */
+#game-screen {
+  position: relative; z-index: 1; width: 100%; height: 100%;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 8px 12px; gap: 4px;
+  overflow-y: auto;
+}
+
+/* ============ Top Status Bar ============ */
+.status-bar {
+  width: 100%; display: flex; gap: 8px; justify-content: center;
+  flex-wrap: wrap; padding: 8px 50px 8px 12px;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-radius: 20px;
+  box-shadow: 0 2px 12px var(--shadow);
+  position: relative; z-index: 2;
+}
+.stat-capsule {
+  display: flex; align-items: center; gap: 4px;
+  background: rgba(255,255,255,0.85);
+  padding: 9px 16px; border-radius: var(--capsule-radius);
+  font-size: 17px; font-weight: 700; color: var(--text);
+  box-shadow: 0 1px 6px var(--shadow);
+  white-space: nowrap;
+}
+.stat-capsule .val {
+  font-weight: 900; min-width: 24px; text-align: center;
+  color: #5D4037;
+}
+.stat-capsule:first-child .val { color: #B8860B; }
+.collection-progress-wrap {
+  width: 100%; height: 5px; background: rgba(74,55,40,0.08);
+  border-radius: 3px; overflow: hidden; margin-top: 2px;
+}
+.collection-progress-fill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, var(--rare-n), var(--rare-r), var(--rare-e), var(--rare-l));
+  transition: width 0.4s ease;
+  position: relative;
+}
+.collection-progress-fill::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+  animation: waveFlow 2s ease-in-out infinite;
+}
+@keyframes waveFlow {
+  0%, 100% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+}
+
+/* Bell Button */
+.bell-btn {
+  position: absolute; top: 10px; right: 16px; z-index: 5;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(255,255,255,0.85);
+  border: none; font-size: 22px; cursor: pointer;
+  box-shadow: 0 2px 8px var(--shadow);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s ease;
+}
+.bell-btn:active { transform: scale(0.9); }
+.bell-btn .badge {
+  position: absolute; top: -3px; right: -3px;
+  width: 18px; height: 18px; background: #F87171;
+  border-radius: 50%; font-size: 11px; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  display: none;
+}
+
+/* ============ Flower Pot Area ============ */
+.flower-name-label {
+  text-align: center; font-size: 19px; font-weight: 800; color: var(--text);
+  margin-bottom: 2px; min-height: 24px; line-height: 1.3;
+}
+.flower-name-label .rarity-tag {
+  display: inline-block; padding: 3px 12px; border-radius: 10px;
+  font-size: 13px; font-weight: 700; margin-left: 4px;
+  vertical-align: middle;
+}
+.rarity-tag.n { background: rgba(168,213,186,0.35); color: #3D7A4F; }
+.rarity-tag.r { background: rgba(129,181,216,0.35); color: #3A6D8C; }
+.rarity-tag.e { background: rgba(201,168,212,0.35); color: #6B4E7A; }
+.rarity-tag.l { background: rgba(245,215,138,0.5); color: #8B6914; }
+
+.pot-area {
+  width: 100%; flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: clamp(220px, 42vh, 420px);
+  position: relative;
+}
+.pot-scene {
+  position: relative; width: 100%; display: flex;
+  flex-direction: column; align-items: center;
+}
+.flower-fill-wrap {
+  position: relative; z-index: 2;
+  width: clamp(110px, 30vw, 170px);
+  height: clamp(110px, 30vw, 170px);
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.25);
+  box-shadow: inset 0 0 24px rgba(0,0,0,0.05), 0 0 20px rgba(0,0,0,0.04);
+  margin: 0 auto;
+}
+.flower-fill {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: calc(var(--fill-pct, 0) * 1%);
+  background: var(--fill-color, #C8B89A);
+  transition: height 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background 0.5s ease;
+  border-radius: 0;
+  opacity: 0.55;
+}
+.flower-fill.fill-seed { --fill-color: #C8B89A; }
+.flower-fill.fill-bud { --fill-color: #A8D5BA; }
+.flower-fill.fill-bloom { --fill-color: #F9D976; }
+.flower-display {
+  font-size: clamp(55px, 15vw, 90px);
+  position: relative; z-index: 3;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.12));
+  text-align: center; line-height: 1;
+}
+.flower-display.bounce {
+  animation: flowerBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes flowerBounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.2); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+.flower-display.bloom-glow {
+  animation: bloomGlow 0.6s ease-out;
+}
+@keyframes bloomGlow {
+  0% { filter: drop-shadow(0 0 20px rgba(253,230,138,1)) brightness(1.5); }
+  100% { filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1)) brightness(1); }
+}
+.bloom-light {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 120px; height: 120px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(253,230,138,0.6) 0%, transparent 70%);
+  z-index: 2; pointer-events: none;
+  opacity: 0; transition: opacity 0.4s ease;
+}
+.bloom-light.active { opacity: 1; animation: bloomPulse 0.8s ease-out; }
+@keyframes bloomPulse {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
+}
+
+/* ============ Rarity Glow on Flower Display ============ */
+.flower-display.rarity-n { filter: drop-shadow(0 4px 12px rgba(168,213,186,0.4)); }
+.flower-display.rarity-r { filter: drop-shadow(0 4px 14px rgba(129,181,216,0.5)); }
+.flower-display.rarity-e { filter: drop-shadow(0 4px 16px rgba(201,168,212,0.6)) drop-shadow(0 0 8px rgba(201,168,212,0.25)); }
+.flower-display.rarity-l {
+  filter: drop-shadow(0 4px 20px rgba(245,215,138,0.8)) drop-shadow(0 0 34px rgba(253,230,138,0.45));
+  animation: legendaryFlowerGlow 2s ease-in-out infinite;
+}
+@keyframes legendaryFlowerGlow {
+  0%, 100% { filter: drop-shadow(0 4px 20px rgba(245,215,138,0.8)) drop-shadow(0 0 34px rgba(253,230,138,0.45)); }
+  50% { filter: drop-shadow(0 4px 28px rgba(245,215,138,1)) drop-shadow(0 0 46px rgba(253,230,138,0.65)); }
+}
+
+/* ============ Empty Pot Animation ============ */
+.pot-scene.empty .flower-display {
+  animation: emptyPotWiggle 3s ease-in-out infinite;
+}
+@keyframes emptyPotWiggle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* ============ Water Splash Particles ============ */
+.water-drop {
+  position: fixed; pointer-events: none; z-index: 250;
+  font-size: 16px;
+  animation: waterDropFly 0.7s ease-out forwards;
+}
+@keyframes waterDropFly {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  40% { opacity: 1; transform: translate(var(--dx), var(--dy)) scale(1.2); }
+  100% { opacity: 0; transform: translate(var(--dx), calc(var(--dy) + 20px)) scale(0.3); }
+}
+
+/* CSS Flower Pot */
+.pot {
+  position: relative; width: clamp(130px, 38vw, 180px);
+  margin-top: -10px; z-index: 2;
+}
+.pot-body {
+  width: 100%; padding-bottom: 75%;
+  background: linear-gradient(135deg, #DDB88A 0%, #C89B6B 15%, var(--pot) 32%, #C4956A 55%, #B8835A 72%, #A6754B 90%, #8E6240 100%);
+  border-radius: 12% 12% 30% 30% / 15% 15% 40% 40%;
+  position: relative;
+  box-shadow:
+    0 8px 24px rgba(74,55,40,0.28),
+    0 2px 4px rgba(74,55,40,0.15),
+    inset 0 4px 10px rgba(255,255,255,0.28),
+    inset 0 2px 4px rgba(255,255,255,0.15),
+    inset 0 -6px 14px rgba(0,0,0,0.18);
+}
+.pot-body::before {
+  content: ''; position: absolute; top: -8%; left: 5%; right: 5%;
+  height: 22%; background: linear-gradient(180deg, #B8835A, #C89B6B);
+  border-radius: 50%;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), inset 0 -1px 3px rgba(255,255,255,0.3);
+}
+.pot-rim {
+  position: absolute; top: -6%; left: -4%; right: -4%;
+  height: 18%;
+  background: linear-gradient(180deg, #E0B88A, #D4A373, #C89B6B, #B8835A);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(74,55,40,0.2), 0 1px 2px rgba(255,255,255,0.3);
+  z-index: 1;
+}
+.pot-rim::after {
+  content: ''; position: absolute; top: 40%; left: -3%; right: -3%;
+  height: 20%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(0,0,0,0.08), rgba(255,255,255,0.05));
+  border-radius: 40%;
+  pointer-events: none;
+}
+.pot-soil {
+  position: absolute; top: 6%; left: 8%; right: 8%;
+  height: 28%; border-radius: 50%;
+  background: var(--soil);
+  transition: background 0.5s ease;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+}
+.pot-soil.wet {
+  background: linear-gradient(180deg, #4E342E 0%, #3E2723 60%, #2E1B0E 100%);
+  box-shadow: inset 0 1px 3px rgba(255,255,255,0.1), inset 0 3px 6px rgba(0,0,0,0.4);
+}
+
+/* ============ Stage Progress ============ */
+.stage-info {
+  text-align: center; margin: 4px 0;
+}
+.stage-name {
+  font-family: 'Kalam', cursive;
+  font-size: 26px; font-weight: 700; color: var(--text);
+  transition: all 0.3s ease;
+}
+.stage-name.changed {
+  animation: stageFadeUp 0.4s ease;
+}
+@keyframes stageFadeUp {
+  0% { transform: translateY(6px); opacity: 0.3; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.stage-pct {
+  display: block;
+  font-size: 30px; font-weight: 900; color: var(--accent-amber);
+  text-shadow: 0 1px 3px rgba(245,158,11,0.2);
+  margin-top: 2px;
+  transition: all 0.3s ease;
+}
+.progress-bar-wrap {
+  width: 76%; max-width: 280px; height: 9px;
+  background: rgba(74,55,40,0.07); border-radius: 5px;
+  overflow: hidden; margin: 6px auto 0;
+}
+.progress-bar-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, var(--rare-n), #7ECB9A, var(--rare-r), var(--rare-e), var(--rare-l));
+  background-size: 200% 100%;
+  transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+.progress-bar-fill::after {
+  content: ''; position: absolute; right: 0; top: 0; bottom: 0;
+  width: 20px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5));
+  border-radius: 4px;
+}
+
+/* ============ Main Button ============ */
+.main-btn-area {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  width: 100%;
+}
+.combo-display {
+  font-size: 16px; font-weight: 800; color: #F59E0B;
+  height: 22px; transition: all 0.2s ease;
+}
+.combo-display.active { animation: comboShake 0.3s ease; }
+@keyframes comboShake {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+.water-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 82%; max-width: 340px;
+  padding: 22px 28px;
+  font-size: clamp(23px, 6vw, 32px); font-weight: 900;
+  color: #fff; border: none; border-radius: var(--btn-radius);
+  background: linear-gradient(180deg, #FAB98B 0%, var(--btn) 40%, var(--btn-press) 100%);
+  box-shadow: 0 6px 0 var(--btn-shadow), 0 8px 24px var(--shadow-md);
+  cursor: pointer; transition: all 0.12s ease;
+  position: relative; -webkit-tap-highlight-color: transparent;
+  letter-spacing: 2px;
+}
+.water-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 var(--btn-shadow), 0 4px 12px var(--shadow);
+}
+.water-btn.ripple {
+  animation: waterRipple 0.5s ease-out;
+}
+@keyframes waterRipple {
+  0% { box-shadow: 0 6px 0 var(--btn-shadow), 0 8px 24px var(--shadow-md), 0 0 0 0 rgba(96,165,250,0.5); }
+  100% { box-shadow: 0 6px 0 var(--btn-shadow), 0 8px 24px var(--shadow-md), 0 0 0 24px rgba(96,165,250,0); }
+}
+
+/* Secondary action row (share + ad) */
+.secondary-actions {
+  display: flex; gap: 10px; justify-content: center;
+  width: 78%; max-width: 300px;
+}
+.secondary-btn {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 3px;
+  padding: 12px 16px;
+  font-size: 15px; font-weight: 600; color: var(--text);
+  border: 1.5px solid rgba(74,55,40,0.12);
+  border-radius: var(--btn-radius);
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px var(--shadow);
+  cursor: pointer; transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.secondary-btn:active { transform: scale(0.95); opacity: 0.8; }
+.secondary-btn .s-label { font-size: 12px; color: var(--text-light); margin-left: 2px; }
+
+/* ============ Bottom Nav ============ */
+.bottom-nav {
+  width: 100%; display: flex; gap: 10px; justify-content: center;
+  padding: 6px 0 12px;
+}
+.nav-btn {
+  flex: 1; max-width: 130px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 15px 8px;
+  font-size: 15px; font-weight: 700;
+  color: var(--text); border: none;
+  border-radius: var(--capsule-radius);
+  background: linear-gradient(180deg, #FFF 0%, #FEF5EC 100%);
+  box-shadow: 0 3px 0 rgba(74,55,40,0.12), 0 4px 12px var(--shadow);
+  cursor: pointer; transition: all 0.12s ease;
+}
+.nav-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(74,55,40,0.12), 0 2px 6px var(--shadow);
+}
+.nav-btn .nav-emoji { font-size: clamp(26px, 7vw, 36px); }
+
+/* ============ Modal Overlay ============ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.45); backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+.modal-overlay.active { opacity: 1; visibility: visible; }
+.modal-sheet {
+  position: relative;
+  width: 100%; max-width: 480px; max-height: 92vh;
+  background: linear-gradient(180deg, #FFFEF9 0%, #FFF8F0 30%, #FEF5EC 100%);
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -8px 30px rgba(0,0,0,0.1);
+  overflow-y: auto; padding: 20px 16px 28px;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.modal-overlay.active .modal-sheet { transform: translateY(0); }
+.modal-handle {
+  width: 48px; height: 5px; background: rgba(74,55,40,0.18);
+  border-radius: 3px; margin: 0 auto 12px;
+}
+/* Close button */
+.modal-close-btn {
+  position: absolute; top: 14px; right: 16px;
+  width: 32px; height: 32px; border-radius: 50%;
+  border: none;
+  background: rgba(74,55,40,0.06);
+  font-size: 16px; color: var(--text-light);
+  cursor: pointer; z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s ease;
+}
+.modal-close-btn:active { background: rgba(74,55,40,0.15); transform: scale(0.9); }
+.modal-title {
+  display: flex; flex-direction: column; align-items: center;
+  margin-bottom: 18px;
+}
+.modal-title-main {
+  font-size: 30px; font-weight: 900; letter-spacing: 1px;
+  background: linear-gradient(135deg, #5D4037 0%, #8B6914 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.modal-title-sub {
+  display: block; font-size: 13px; font-weight: 500;
+  color: var(--text-light); margin-top: 2px;
+  letter-spacing: 3px; opacity: 0.7;
+}
+/* Decorative divider below title */
+.modal-title::after {
+  content: '✦  ✦  ✦';
+  display: block; font-size: 10px; color: var(--rare-l);
+  letter-spacing: 6px; margin-top: 6px; opacity: 0.6;
+}
+.modal-sheet::before {
+  content: ''; position: absolute; top: 0; left: 20px; right: 20px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--rare-n), var(--rare-r), var(--rare-e), var(--rare-l));
+  border-radius: 0 0 3px 3px;
+  box-shadow: 0 0 10px rgba(168,213,186,0.4), 0 2px 4px rgba(0,0,0,0.05);
+  pointer-events: none; z-index: 1;
+}
+
+/* ============ Collection Grid ============ */
+.filter-tabs {
+  display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap;
+}
+.filter-tab {
+  padding: 10px 22px; border-radius: 22px;
+  font-size: 15px; font-weight: 700; border: 2px solid transparent;
+  background: rgba(74,55,40,0.04); color: var(--text-light);
+  cursor: pointer; transition: all 0.2s ease;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
+}
+.filter-tab.active {
+  background: #FFF; border-color: transparent;
+  color: var(--btn-press);
+  box-shadow: 0 0 0 2px var(--btn), 0 0 12px rgba(245,169,127,0.25), 0 2px 8px var(--shadow);
+  transform: scale(1.04);
+}
+.collection-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  padding: 4px 2px;
+}
+.collection-card {
+  aspect-ratio: 1; border-radius: 18px;
+  background: rgba(255,255,255,0.35);
+  border: 1.5px dashed rgba(74,55,40,0.15);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: relative; font-size: 14px; text-align: center;
+  transition: all 0.25s ease; padding: 8px; overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04); cursor: pointer;
+  opacity: 0;
+  animation: cardFadeIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes cardFadeIn {
+  0% { opacity: 0; transform: scale(0.85) translateY(8px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.collection-card.collected {
+  background: #FFF; box-shadow: 0 2px 10px var(--shadow);
+  border: 2.5px solid transparent;
+}
+/* Uncollected mystery treatment */
+.collection-card:not(.collected) .card-emoji {
+  opacity: 0.3; filter: grayscale(0.6) brightness(1.3);
+}
+/* Rarity-specific collected backgrounds */
+.collection-card.collected.rarity-n { border-color: rgba(120,180,155,0.85); background: linear-gradient(180deg, #FFF 0%, #F5FBF7 40%, rgba(168,213,186,0.12) 100%); }
+.collection-card.collected.rarity-r { border-color: rgba(100,160,210,0.85); background: linear-gradient(180deg, #FFF 0%, #F5F9FC 40%, rgba(129,181,216,0.12) 100%); }
+.collection-card.collected.rarity-e { border-color: rgba(170,130,190,0.85); background: linear-gradient(180deg, #FFF 0%, #FBF7FC 40%, rgba(201,168,212,0.13) 100%); }
+.collection-card.collected.rarity-l {
+  border-color: rgba(220,180,70,1);
+  background: linear-gradient(180deg, #FFFEF8 0%, #FFF8E8 40%, rgba(245,215,138,0.18) 100%);
+  box-shadow: 0 0 14px rgba(245,215,138,0.3), 0 2px 10px rgba(74,55,40,0.08);
+  animation: cardFadeIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, legendaryCardPulse 2s ease-in-out 0.5s infinite;
+}
+@keyframes legendaryCardPulse {
+  0%, 100% { box-shadow: 0 0 14px rgba(245,215,138,0.3), 0 2px 10px rgba(74,55,40,0.08); }
+  50% { box-shadow: 0 0 24px rgba(245,215,138,0.55), 0 2px 14px rgba(245,215,138,0.25); }
+}
+.collection-card .card-emoji { font-size: clamp(34px, 9vw, 50px); }
+.collection-card .card-name {
+  font-size: 13px; font-weight: 600; margin-top: 4px;
+  color: var(--text); line-height: 1.2; letter-spacing: 0.3px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.collection-card .card-name.unfound { color: #C8BFB0; font-size: 12px; font-weight: 500; }
+.collection-card .check-mark {
+  position: absolute; bottom: 5px; right: 6px;
+  font-size: 18px; color: #56B870; z-index: 2;
+}
+/* Check mark background circle */
+.collection-card .check-mark::before {
+  content: ''; position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 22px; height: 22px;
+  background: rgba(86,184,112,0.12);
+  border-radius: 50%; z-index: -1;
+}
+.collection-card.legendary .card-emoji { text-shadow: 0 0 10px rgba(245,215,138,0.7); }
+.collection-card.legendary .card-name { color: #B8860B; font-weight: 800; }
+
+/* Legendary shimmer sweep */
+.collection-card.collected.rarity-l::before {
+  content: ''; position: absolute; top: 0; left: -150%; width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  transform: skewX(-20deg);
+  animation: legendaryShimmer 2.5s ease-in-out infinite;
+  pointer-events: none; z-index: 1;
+}
+@keyframes legendaryShimmer {
+  0% { left: -150%; }
+  100% { left: 150%; }
+}
+
+/* ============ Collection Hint Bar ============ */
+.collection-hint {
+  text-align: center; margin-top: 18px;
+  font-size: 16px; font-weight: 600;
+  color: var(--text-light);
+  padding: 12px 20px;
+  background: rgba(255,255,255,0.5);
+  border-radius: 16px;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 1px 6px var(--shadow);
+}
+.collection-hint.hint-gold {
+  background: linear-gradient(135deg, rgba(253,230,138,0.25), rgba(245,215,138,0.12));
+  color: #8B6914;
+  border: 1px solid rgba(245,215,138,0.3);
+}
+.collection-hint.hint-complete {
+  background: linear-gradient(135deg, rgba(253,230,138,0.35), rgba(245,215,138,0.2));
+  color: #6B3A0A; font-size: 17px; font-weight: 800;
+  animation: hintCompleteGlow 2s ease-in-out infinite;
+}
+@keyframes hintCompleteGlow {
+  0%, 100% { box-shadow: 0 0 12px rgba(253,230,138,0.3); }
+  50% { box-shadow: 0 0 24px rgba(253,230,138,0.6); }
+}
+
+/* ============ Shop ============ */
+.shop-seed-display {
+  text-align: center; font-size: 80px; padding: 20px;
+  transition: transform 0.3s ease;
+}
+.shop-seed-display.shake { animation: seedShake 0.4s ease; }
+@keyframes seedShake {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-8deg); }
+  40% { transform: rotate(8deg); }
+  60% { transform: rotate(-6deg); }
+  80% { transform: rotate(6deg); }
+}
+.shop-price-row {
+  display: flex; justify-content: center; gap: 20px; margin: 12px 0;
+  font-size: 14px; font-weight: 600; color: var(--text-light);
+}
+.shop-btn {
+  display: block; width: 80%; max-width: 280px; margin: 10px auto;
+  padding: 18px; font-size: 18px; font-weight: 800;
+  color: #fff; border: none; border-radius: var(--btn-radius);
+  background: linear-gradient(180deg, #FAB98B 0%, var(--btn) 40%, var(--btn-press) 100%);
+  box-shadow: 0 4px 0 var(--btn-shadow), 0 6px 16px var(--shadow);
+  cursor: pointer; text-align: center; transition: all 0.12s ease;
+}
+.shop-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--btn-shadow), 0 3px 8px var(--shadow); }
+.shop-btn:disabled { opacity: 0.4; pointer-events: none; }
+.free-seed-btn {
+  background: linear-gradient(180deg, #C8E6C9 0%, #A5D6A7 40%, #81C784 100%) !important;
+  box-shadow: 0 4px 0 #66BB6A !important;
+  color: #2E7D32 !important;
+}
+.free-seed-btn:disabled {
+  opacity: 0.5; pointer-events: none;
+  background: rgba(74,55,40,0.06) !important;
+  box-shadow: 0 4px 0 rgba(74,55,40,0.1) !important;
+  color: #BBB !important;
+}
+
+/* ============ Ad Button ============ */
+.ad-btn {
+  display: block; margin: 8px auto;
+  padding: 13px 28px; font-size: 15px; font-weight: 700;
+  color: var(--text); border: 1.5px solid rgba(74,55,40,0.15);
+  border-radius: var(--btn-radius);
+  background: rgba(255,255,255,0.65);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px var(--shadow);
+  cursor: pointer; transition: all 0.15s ease;
+}
+.ad-btn:active { transform: scale(0.95); opacity: 0.8; }
+.rarity-odds {
+  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+  font-size: 13px; margin-top: 8px;
+}
+.rarity-odds span {
+  padding: 4px 12px; border-radius: 10px; font-weight: 600;
+}
+.odds-n { background: rgba(168,213,186,0.3); color: #3D7A4F; }
+.odds-r { background: rgba(129,181,216,0.3); color: #3A6D8C; }
+.odds-e { background: rgba(201,168,212,0.3); color: #6B4E7A; }
+.odds-l { background: rgba(245,215,138,0.3); color: #8B6914; }
+.open-result {
+  text-align: center; padding: 24px 16px; font-size: 22px; font-weight: 800;
+  border-radius: 18px; position: relative; overflow: hidden;
+  animation: resultReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: none;
+  background: rgba(255,255,255,0.6);
+}
+.open-result .result-glow {
+  position: absolute; inset: 0; border-radius: 18px;
+  pointer-events: none; z-index: -1;
+}
+@keyframes resultReveal {
+  0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+.quality-glow {
+  position: absolute; inset: -4px; border-radius: inherit;
+  pointer-events: none; z-index: -1;
+  animation: qualityPulse 1.5s ease-in-out infinite;
+}
+@keyframes qualityPulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+/* ============ Daily Tasks ============ */
+.task-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-radius: 16px;
+  background: rgba(74,55,40,0.03); margin-bottom: 8px;
+}
+.task-item.done { opacity: 0.5; }
+.task-item.task-clickable { cursor: pointer; transition: transform 0.12s ease, box-shadow 0.12s ease; }
+.task-item.task-clickable:active { transform: scale(0.97); box-shadow: 0 2px 8px var(--shadow-md); }
+.task-info { font-size: 16px; font-weight: 600; }
+.task-reward { font-size: 15px; color: #F59E0B; font-weight: 700; }
+
+/* ============ Tutorial Overlay ============ */
+.tutorial-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden; transition: all 0.3s;
+}
+.tutorial-overlay.active { opacity: 1; visibility: visible; }
+.tutorial-box {
+  background: #FFF; border-radius: 24px; padding: 24px 20px;
+  text-align: center; max-width: 300px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  animation: tutorialIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes tutorialIn {
+  0% { transform: scale(0.8) translateY(20px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+.tutorial-emoji { font-size: 64px; margin-bottom: 12px; }
+.tutorial-text { font-size: 18px; font-weight: 600; margin-bottom: 16px; line-height: 1.6; }
+.tutorial-btn {
+  padding: 16px 44px; font-size: 18px; font-weight: 800;
+  color: #fff; border: none; border-radius: var(--btn-radius);
+  background: linear-gradient(180deg, #FAB98B, var(--btn), var(--btn-press));
+  box-shadow: 0 4px 0 var(--btn-shadow);
+  cursor: pointer; transition: all 0.12s ease;
+}
+.tutorial-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--btn-shadow); }
+
+/* ============ Tutorial Tooltip ============ */
+.tutorial-dim {
+  position: fixed; inset: 0; z-index: 205;
+  background: rgba(0,0,0,0.12); pointer-events: none;
+  transition: opacity 0.3s;
+}
+.tutorial-tooltip {
+  position: fixed; z-index: 210;
+  background: #FFF; border-radius: 18px; padding: 16px 18px 14px;
+  box-shadow: 0 6px 24px rgba(74,55,40,0.2);
+  max-width: 260px; text-align: center;
+  animation: tooltipIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events: auto;
+}
+@keyframes tooltipIn {
+  0% { transform: translateY(10px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.tutorial-tooltip::after {
+  content: ''; position: absolute; bottom: -8px; left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #FFF;
+}
+.tutorial-tooltip.arrow-up { padding: 14px 18px 16px; }
+.tutorial-tooltip.arrow-up::after {
+  bottom: auto; top: -8px;
+  border-top: none;
+  border-bottom: 8px solid #FFF;
+}
+.tutorial-skip {
+  position: absolute; top: 4px; right: 12px;
+  font-size: 13px; color: #CCC; cursor: pointer;
+  background: none; border: none; padding: 2px 4px;
+  transition: color 0.2s;
+}
+.tutorial-skip:hover { color: #999; }
+.tutorial-tooltip .tooltip-text {
+  font-size: 16px; font-weight: 600; color: var(--text);
+  margin-bottom: 10px; line-height: 1.5; margin-top: 4px;
+}
+.tutorial-tooltip .tutorial-btn {
+  padding: 12px 32px; font-size: 16px; font-weight: 800;
+  color: #fff; border: none; border-radius: var(--btn-radius);
+  background: linear-gradient(180deg, #FAB98B, var(--btn), var(--btn-press));
+  box-shadow: 0 3px 0 var(--btn-shadow);
+  cursor: pointer; transition: all 0.12s ease;
+}
+.tutorial-tooltip .tutorial-btn:active {
+  transform: translateY(2px); box-shadow: 0 1px 0 var(--btn-shadow);
+}
+
+/* Breath glow effect */
+@keyframes breathGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245,169,127,0.6); }
+  50% { box-shadow: 0 0 0 14px rgba(245,169,127,0); }
+}
+.breath-glow {
+  animation: breathGlow 1.5s ease-in-out infinite;
+}
+
+/* Celebration text */
+.celebration-text {
+  position: fixed; top: 38%; left: 50%; transform: translate(-50%,-50%);
+  z-index: 220; font-size: 34px; font-weight: 900; color: #4A3728;
+  text-shadow: 0 0 30px rgba(253,230,138,0.8), 0 0 60px rgba(253,230,138,0.4);
+  pointer-events: none; opacity: 0; white-space: nowrap;
+  transition: opacity 0.2s;
+}
+
+/* ============ New Flower Collection Popup (seed opening - enhanced) ============ */
+.new-flower-overlay {
+  position: fixed; inset: 0; z-index: 250;
+  background: rgba(0,0,0,0.45); backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+.new-flower-overlay.active { opacity: 1; visibility: visible; }
+.new-flower-card {
+  background: #FFF; border-radius: 24px; padding: 28px 24px 22px;
+  text-align: center; max-width: 280px; width: 85%;
+  position: relative; overflow: hidden;
+  box-shadow: 0 0 30px var(--nf-accent, #A8D5BA), 0 12px 40px rgba(0,0,0,0.18);
+  transform: scale(0.4);
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.5s ease;
+}
+.new-flower-overlay.active .new-flower-card {
+  animation: popupIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, cardGlowPulse 2s ease-in-out 0.6s infinite;
+}
+@keyframes popupIn {
+  0% { transform: scale(0.4); opacity: 0; }
+  60% { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes cardGlowPulse {
+  0%, 100% { box-shadow: 0 0 30px var(--nf-accent, #A8D5BA), 0 12px 40px rgba(0,0,0,0.18); }
+  50% { box-shadow: 0 0 50px var(--nf-accent, #A8D5BA), 0 12px 50px rgba(0,0,0,0.22); }
+}
+/* Shimmer sweep */
+.new-flower-card::after {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.45) 45%, rgba(255,255,255,0.55) 50%, transparent 55%);
+  transform: rotate(25deg);
+  animation: shimmerSweep 1.2s ease-in-out 0.1s forwards;
+  pointer-events: none; z-index: 5;
+}
+@keyframes shimmerSweep {
+  0% { transform: translate(-100%, -100%) rotate(25deg); }
+  100% { transform: translate(100%, 100%) rotate(25deg); }
+}
+.new-flower-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+  background: var(--nf-accent, #A8D5BA);
+  border-radius: 3px 3px 0 0;
+  z-index: 1;
+}
+.new-flower-badge {
+  display: inline-block; background: #FFF3E0; color: #E67E22;
+  padding: 5px 16px; border-radius: 20px;
+  font-size: 15px; font-weight: 800; margin-bottom: 16px;
+  position: relative; z-index: 2;
+  animation: badgeBounce 0.6s ease 0.3s both, badgeGlow 2s ease-in-out 0.9s infinite;
+}
+@keyframes badgeBounce {
+  0% { transform: scale(0) rotate(-10deg); }
+  60% { transform: scale(1.15) rotate(3deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+@keyframes badgeGlow {
+  0%, 100% { box-shadow: 0 0 8px rgba(230,126,34,0.3); }
+  50% { box-shadow: 0 0 20px rgba(230,126,34,0.6); }
+}
+/* Emoji halo wrapper */
+.nf-emoji-wrap {
+  position: relative; display: inline-block; z-index: 2;
+}
+.nf-emoji-halo {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 80px; height: 80px; border-radius: 50%;
+  background: transparent;
+  border: 3px solid var(--nf-accent, #A8D5BA);
+  opacity: 0;
+  animation: emojiHalo 1.5s ease-out 0.4s forwards;
+  pointer-events: none;
+}
+@keyframes emojiHalo {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.7; }
+  100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+}
+.new-flower-emoji {
+  font-size: 80px; line-height: 1; margin: 8px 0;
+  position: relative; z-index: 3;
+  animation: badgeBounce 0.6s ease 0.2s both;
+  filter: drop-shadow(0 4px 12px var(--nf-accent, rgba(168,213,186,0.5)));
+}
+.new-flower-name {
+  font-size: 24px; font-weight: 900; color: var(--text); margin-top: 8px;
+  position: relative; z-index: 2;
+}
+.new-flower-rarity {
+  display: inline-block; padding: 4px 18px; border-radius: 12px;
+  font-size: 14px; font-weight: 700; margin: 8px 0 4px;
+  position: relative; z-index: 2;
+  background: var(--nf-rarity-bg, rgba(168,213,186,0.35));
+  color: var(--nf-rarity-text, #3D7A4F);
+}
+.new-flower-msg {
+  font-size: 14px; color: var(--text-light); margin: 10px 0 16px;
+  position: relative; z-index: 2;
+}
+.new-flower-btn {
+  padding: 14px 40px; font-size: 17px; font-weight: 800;
+  color: #fff; border: none; border-radius: var(--btn-radius);
+  background: linear-gradient(180deg, #FAB98B, var(--btn), var(--btn-press));
+  box-shadow: 0 4px 0 var(--btn-shadow), 0 6px 16px var(--shadow);
+  cursor: pointer; transition: all 0.12s ease;
+  position: relative; z-index: 2;
+}
+.new-flower-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--btn-shadow); }
+
+/* ============ Bloom Collection Popup (flower blooming - SUPER spectacular) ============ */
+.bloom-popup-overlay {
+  position: fixed; inset: 0; z-index: 260;
+  background: rgba(20,15,30,0.55); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.4s, visibility 0.4s;
+}
+.bloom-popup-overlay.active { opacity: 1; visibility: visible; }
+/* Subtle starry background */
+.bloom-popup-overlay::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 60% 15%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1.5px 1.5px at 80% 70%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 35% 80%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1.5px 1.5px at 70% 50%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 15% 55%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 90% 25%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1.5px 1.5px at 45% 65%, rgba(255,255,255,0.4), transparent);
+  animation: starsTwinkle 1.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes starsTwinkle {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+/* Light burst from center */
+.bloom-burst {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 60px; height: 60px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(253,230,138,0.6) 30%, transparent 70%);
+  opacity: 0; pointer-events: none; z-index: 1;
+}
+.bloom-popup-overlay.active .bloom-burst {
+  animation: burstExpand 0.8s ease-out forwards;
+}
+@keyframes burstExpand {
+  0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(4); opacity: 0; }
+}
+/* Rotating star ring */
+.bloom-star-ring {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 260px; height: 260px; border-radius: 50%;
+  border: 2px dashed rgba(253,230,138,0.4);
+  opacity: 0; pointer-events: none; z-index: 1;
+}
+.bloom-popup-overlay.active .bloom-star-ring {
+  opacity: 1;
+  animation: ringRotate 8s linear infinite, ringFadeIn 0.5s ease-out;
+}
+@keyframes ringRotate {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes ringFadeIn {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+/* Second ring offset */
+.bloom-star-ring::after {
+  content: ''; position: absolute; top: -15px; left: -15px; right: -15px; bottom: -15px;
+  border-radius: 50%;
+  border: 1px dotted rgba(255,255,255,0.3);
+  animation: ringRotate 12s linear infinite reverse;
+}
+/* Main card */
+.bloom-popup-card {
+  background: rgba(255,255,255,0.92); backdrop-filter: blur(20px);
+  border-radius: 28px; padding: 30px 26px 24px;
+  text-align: center; max-width: 320px; width: 88%;
+  position: relative; z-index: 2; overflow: visible;
+  border: 2px solid rgba(253,230,138,0.6);
+  box-shadow: 0 0 60px rgba(253,230,138,0.35), 0 20px 60px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.8);
+  transform: scale(0);
+}
+.bloom-popup-overlay.active .bloom-popup-card {
+  animation: bloomCardIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes bloomCardIn {
+  0% { transform: scale(0) rotate(-8deg); opacity: 0; }
+  50% { transform: scale(1.12) rotate(2deg); opacity: 1; }
+  75% { transform: scale(0.94) rotate(-1deg); }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+/* Crown badge */
+.bloom-crown {
+  display: inline-block; background: linear-gradient(135deg, #FDE68A, #F59E0B, #D97706);
+  color: #FFF; padding: 6px 20px; border-radius: 24px;
+  font-size: 18px; font-weight: 900;
+  box-shadow: 0 0 20px rgba(245,158,11,0.5), 0 4px 8px rgba(0,0,0,0.15);
+  margin-bottom: 18px; position: relative; z-index: 3;
+  animation: crownGlow 1.5s ease-in-out 0.5s infinite;
+}
+@keyframes crownGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(245,158,11,0.5), 0 4px 8px rgba(0,0,0,0.15); }
+  50% { box-shadow: 0 0 35px rgba(245,158,11,0.8), 0 6px 12px rgba(0,0,0,0.2); }
+}
+/* Emoji ring */
+.bloom-emoji-ring {
+  position: relative; display: inline-block; margin: 8px 0; z-index: 3;
+}
+.bloom-emoji-glow {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 110px; height: 110px; border-radius: 50%;
+  background: radial-gradient(circle, var(--bp-glow-color, rgba(253,230,138,0.5)) 0%, transparent 70%);
+  animation: emojiRainbowGlow 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes emojiRainbowGlow {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.6; }
+  50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+}
+.bloom-emoji {
+  font-size: 100px; line-height: 1; position: relative; z-index: 4;
+  filter: drop-shadow(0 0 20px rgba(253,230,138,0.7)) drop-shadow(0 0 40px rgba(253,230,138,0.3));
+  animation: emojiFloat 2s ease-in-out 0.6s infinite;
+}
+@keyframes emojiFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+/* Name with gold glow */
+.bloom-name-glow {
+  font-size: 28px; font-weight: 900; color: var(--text); margin-top: 10px; position: relative; z-index: 3;
+  text-shadow: 0 0 15px rgba(253,230,138,0.6), 0 0 30px rgba(253,230,138,0.3);
+}
+/* Rarity badge */
+.bloom-rarity-badge {
+  display: inline-block; padding: 5px 22px; border-radius: 14px;
+  font-size: 16px; font-weight: 800; margin: 10px 0 6px; position: relative; z-index: 3;
+  background: var(--bp-rarity-bg, rgba(168,213,186,0.35));
+  color: var(--bp-rarity-text, #3D7A4F);
+}
+/* Message */
+.bloom-msg {
+  font-size: 15px; color: var(--text-light); margin: 10px 0 18px; position: relative; z-index: 3;
+}
+/* Button */
+.bloom-btn {
+  padding: 16px 44px; font-size: 18px; font-weight: 900;
+  color: #4A3728; border: none; border-radius: var(--btn-radius);
+  background: linear-gradient(180deg, #FEF3C7, #FDE68A, #F59E0B);
+  box-shadow: 0 4px 0 #D97706, 0 8px 20px rgba(245,158,11,0.35);
+  cursor: pointer; transition: all 0.12s ease; position: relative; z-index: 3;
+}
+.bloom-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #D97706; }
+.bloom-btn:hover {
+  box-shadow: 0 4px 0 #D97706, 0 8px 28px rgba(245,158,11,0.5);
+}
+
+/* ============ Bloom Settlement Overlay ============ */
+.bloom-settle-overlay {
+  position: fixed; inset: 0; z-index: 265;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+.bloom-settle-overlay.active { opacity: 1; visibility: visible; }
+.bloom-settle-card {
+  background: linear-gradient(180deg, #FFFEF9 0%, #FFF8E8 50%, #FEF3C7 100%);
+  border-radius: 28px; padding: 28px 26px 22px;
+  text-align: center; max-width: 300px; width: 85%;
+  position: relative; overflow: hidden;
+  border: 2px solid rgba(253,230,138,0.7);
+  box-shadow: 0 0 40px rgba(253,230,138,0.3), 0 16px 40px rgba(0,0,0,0.2);
+  transform: scale(0);
+}
+.bloom-settle-overlay.active .bloom-settle-card {
+  animation: settleBounceIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes settleBounceIn {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.bloom-settle-header {
+  font-size: 22px; font-weight: 900; color: #8B6914;
+  margin-bottom: 12px;
+  text-shadow: 0 0 10px rgba(253,230,138,0.5);
+}
+.bloom-settle-emoji {
+  font-size: 90px; line-height: 1; margin: 6px 0;
+  filter: drop-shadow(0 0 16px rgba(253,230,138,0.6)) drop-shadow(0 0 30px rgba(253,230,138,0.25));
+}
+.bloom-settle-name {
+  font-size: 22px; font-weight: 900; color: var(--text); margin-top: 4px;
+}
+.bloom-settle-reward {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin: 16px 0 8px;
+  background: linear-gradient(135deg, rgba(253,230,138,0.25), rgba(245,215,138,0.1));
+  border: 1px solid rgba(245,215,138,0.4);
+  border-radius: 20px; padding: 12px 24px;
+}
+.bloom-settle-coin {
+  font-size: 36px;
+  animation: coinSpin 1s ease-in-out infinite;
+}
+@keyframes coinSpin {
+  0%, 100% { transform: rotateY(0deg); }
+  50% { transform: rotateY(180deg); }
+}
+.bloom-settle-amount {
+  font-size: 36px; font-weight: 900; color: #B8860B;
+  text-shadow: 0 0 10px rgba(253,230,138,0.4);
+}
+.bloom-settle-btn {
+  padding: 16px 48px; font-size: 18px; font-weight: 900;
+  color: #4A3728; border: none; border-radius: var(--btn-radius);
+  background: linear-gradient(180deg, #FEF3C7, #FDE68A, #F59E0B);
+  box-shadow: 0 4px 0 #D97706, 0 8px 20px rgba(245,158,11,0.35);
+  cursor: pointer; transition: all 0.12s ease; margin-top: 12px;
+}
+.bloom-settle-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #D97706; }
+
+/* ============ Fertilizer Use Button ============ */
+.fert-use-btn {
+  background: linear-gradient(180deg, #A8D5BA, #6DAF7F) !important;
+  box-shadow: 0 4px 0 #4A8B5C !important;
+  color: #fff !important;
+}
+.fert-use-btn:disabled {
+  opacity: 0.35; filter: grayscale(0.5); pointer-events: none;
+}
+.fert-use-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #4A8B5C !important; }
+
+/* ============ Sparkle Particles ============ */
+.sparkle {
+  position: fixed; pointer-events: none; z-index: 270;
+  font-size: 16px;
+  animation: sparkleBurst 1.5s ease-out forwards;
+}
+@keyframes sparkleBurst {
+  0% { opacity: 1; transform: translate(0, 0) scale(0); }
+  30% { opacity: 1; transform: translate(var(--sx), var(--sy)) scale(1); }
+  100% { opacity: 0; transform: translate(var(--ex), var(--ey)) scale(0.3); }
+}
+
+/* ============ Confetti Particles ============ */
+.confetti-piece {
+  position: fixed; pointer-events: none; z-index: 270;
+  font-size: 14px;
+  animation: confettiFall var(--cf-dur, 3s) ease-in forwards;
+}
+@keyframes confettiFall {
+  0% { opacity: 1; transform: translate(0, -60px) rotate(0deg) scale(0.5); }
+  20% { opacity: 1; transform: translate(var(--cf-dx1, 30px), 15vh) rotate(120deg) scale(1); }
+  50% { opacity: 0.9; transform: translate(var(--cf-dx2, -40px), 50vh) rotate(300deg) scale(0.9); }
+  80% { opacity: 0.5; transform: translate(var(--cf-dx3, 20px), 80vh) rotate(500deg) scale(0.7); }
+  100% { opacity: 0; transform: translate(var(--cf-dx4, -10px), 105vh) rotate(720deg) scale(0.3); }
+}
+
+/* ============ Star Burst Particles ============ */
+.star-burst-particle {
+  position: fixed; pointer-events: none; z-index: 270;
+  font-size: 22px;
+  animation: starBurstOut 1.2s ease-out forwards;
+}
+@keyframes starBurstOut {
+  0% { opacity: 1; transform: translate(0, 0) scale(0) rotate(0deg); }
+  40% { opacity: 1; transform: translate(var(--sbx), var(--sby)) scale(1.2) rotate(180deg); }
+  100% { opacity: 0; transform: translate(var(--ebx), var(--eby)) scale(0) rotate(360deg); }
+}
+
+/* ============ Screen Flash ============ */
+.screen-flash {
+  position: fixed; inset: 0; z-index: 255; pointer-events: none;
+  background: rgba(255,255,255,0.7);
+  animation: flashOut 0.5s ease-out forwards;
+}
+@keyframes flashOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Locked button */
+.nav-btn.locked {
+  opacity: 0.4; filter: grayscale(0.5); pointer-events: none;
+}
+.nav-btn .lock-icon {
+  display: none; position: absolute; top: -5px; right: -5px;
+  font-size: 14px;
+}
+.nav-btn.locked .lock-icon { display: block; }
+
+/* ============ Toast ============ */
+.toast {
+  position: fixed; top: 20%; left: 50%; transform: translateX(-50%);
+  z-index: 300; padding: 16px 28px;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-left: 3px solid var(--accent-amber);
+  color: var(--text);
+  border-radius: var(--capsule-radius); font-size: 16px; font-weight: 700;
+  pointer-events: none; opacity: 0;
+  box-shadow: 0 4px 16px rgba(74,55,40,0.12);
+  transition: opacity 0.3s, transform 0.3s;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(-8px); }
+
+/* ============ Offline Modal ============ */
+.offline-content { text-align: center; }
+.offline-drops { font-size: 48px; margin: 12px 0; }
+
+/* ============ Coin Fly ============ */
+.coin-fly {
+  position: fixed; pointer-events: none; z-index: 250;
+  font-size: 28px; font-weight: 900; color: var(--accent-amber);
+  animation: coinArc 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+@keyframes coinArc {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  30% { opacity: 1; transform: translate(calc(var(--cx)*0.3), calc(var(--cy)*0.3 - 20px)) scale(1.15); }
+  100% { opacity: 0; transform: translate(var(--cx), var(--cy)) scale(0.5); }
+}
+
+/* ============ Responsive ============ */
+@media (max-width: 360px) {
+  .stat-capsule { font-size: 14px; padding: 5px 10px; }
+  .collection-grid { grid-template-columns: repeat(3, 1fr); }
+  .water-btn { padding: 16px 36px; font-size: 20px; }
+}
+@media (min-width: 420px) {
+  .collection-grid { grid-template-columns: repeat(5, 1fr); }
+}
+
+/* ============ Scrollbar ============ */
+.modal-sheet::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+
+<!-- ============ Loading Screen ============ -->
+<div id="loading-screen">
+  <div class="loading-sprout">🌱</div>
+  <div class="loading-title">花语花园</div>
+  <div class="loading-subtitle">每一朵花都有故事</div>
+  <div class="loading-bar-wrap"><div class="loading-bar-fill"></div></div>
+</div>
+
+<!-- ============ Background Decor ============ -->
+<div class="bg-decor" id="bg-decor">
+  <div class="sun"></div>
+  <div class="cloud cloud1"></div>
+  <div class="cloud cloud2"></div>
+  <div class="cloud cloud3"></div>
+  <div class="grass-hill"></div>
+  <div class="firefly firefly1"></div>
+  <div class="firefly firefly2"></div>
+  <div class="firefly firefly3"></div>
+  <div class="firefly firefly4"></div>
+</div>
+
+<!-- ============ Game Screen ============ -->
+<div id="game-screen" style="display:none;">
+  <!-- Status Bar -->
+  <div class="status-bar" id="status-bar">
+    <div class="stat-capsule">💰 <span class="val" id="coin-val">0</span></div>
+    <div class="stat-capsule">🌱 <span class="val" id="seed-val">0</span></div>
+    <div class="stat-capsule">🧪 <span class="val" id="fert-val">0</span></div>
+    <div style="flex:1;min-width:80px;">
+      <div class="stat-capsule" style="width:100%;justify-content:center;">📖 <span id="coll-progress-text">0/44</span></div>
+      <div class="collection-progress-wrap"><div class="collection-progress-fill" id="coll-progress-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- Bell -->
+  <button class="bell-btn" id="bell-btn" onclick="openDailyTasks()">🔔<span class="badge" id="bell-badge">!</span></button>
+
+  <!-- Tutorial tooltip -->
+  <div class="tutorial-tooltip" id="tutorial-tooltip" style="display:none;">
+    <button class="tutorial-skip" onclick="skipTutorial()">跳过</button>
+    <div class="tooltip-text" id="tooltip-text"></div>
+    <button class="tutorial-btn" id="tooltip-btn" style="display:none;">知道了</button>
+  </div>
+
+  <!-- Celebration text -->
+  <div class="celebration-text" id="celebration-text"></div>
+
+  <!-- New Flower Collection Popup (seed opening) -->
+  <div class="new-flower-overlay" id="new-flower-overlay" onclick="closeNewFlowerPopup()">
+    <div class="new-flower-card" onclick="event.stopPropagation()">
+      <div class="new-flower-badge">🆕 新图鉴！</div>
+      <div class="nf-emoji-wrap">
+        <div class="nf-emoji-halo"></div>
+        <div class="new-flower-emoji" id="nf-emoji"></div>
+      </div>
+      <div class="new-flower-name" id="nf-name"></div>
+      <div class="new-flower-rarity" id="nf-rarity"></div>
+      <div class="new-flower-msg" id="nf-msg"></div>
+      <button class="new-flower-btn" onclick="closeNewFlowerPopup()">🎉 太棒了！</button>
+    </div>
+  </div>
+
+  <!-- Bloom Collection Popup (flower blooming - more spectacular) -->
+  <div class="bloom-popup-overlay" id="bloom-popup-overlay" onclick="closeBloomPopup()">
+    <div class="bloom-burst" id="bloom-burst"></div>
+    <div class="bloom-star-ring" id="bloom-star-ring"></div>
+    <div class="bloom-popup-card" onclick="event.stopPropagation()">
+      <div class="bloom-crown">👑 首次绽放！</div>
+      <div class="bloom-emoji-ring">
+        <div class="bloom-emoji-glow"></div>
+        <div class="bloom-emoji" id="bp-emoji"></div>
+      </div>
+      <div class="bloom-name-glow" id="bp-name"></div>
+      <div class="bloom-rarity-badge" id="bp-rarity"></div>
+      <div class="bloom-msg" id="bp-msg"></div>
+      <button class="bloom-btn" onclick="closeBloomPopup()">🌟 收下这朵花！</button>
+    </div>
+  </div>
+
+  <!-- Bloom Settlement Overlay (reward after blooming) -->
+  <div class="bloom-settle-overlay" id="bloom-settle-overlay" onclick="closeBloomSettle()">
+    <div class="bloom-settle-card" onclick="event.stopPropagation()">
+      <div class="bloom-settle-header">🌸 绽放成功！</div>
+      <div class="bloom-settle-emoji" id="bs-emoji"></div>
+      <div class="bloom-settle-name" id="bs-name"></div>
+      <div class="bloom-settle-reward">
+        <span class="bloom-settle-coin">🪙</span>
+        <span class="bloom-settle-amount" id="bs-coins"></span>
+      </div>
+      <button class="bloom-settle-btn" onclick="closeBloomSettle()">🎉 收下奖励</button>
+    </div>
+  </div>
+
+  <!-- Tutorial dim -->
+  <div class="tutorial-dim" id="tutorial-dim" style="display:none;"></div>
+
+  <!-- Flower Name Label -->
+  <div class="flower-name-label" id="flower-name-label"></div>
+
+  <!-- Pot Area -->
+  <div class="pot-area" id="pot-area">
+    <div class="pot-scene">
+      <div class="bloom-light" id="bloom-light"></div>
+      <div class="flower-fill-wrap" id="flower-fill-wrap">
+        <div class="flower-fill" id="flower-fill"></div>
+        <div class="flower-display" id="flower-display">🪴</div>
+      </div>
+      <div class="pot" id="pot-container">
+        <div class="pot-rim"></div>
+        <div class="pot-soil" id="pot-soil"></div>
+        <div class="pot-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage Info -->
+  <div class="stage-info">
+    <div class="stage-name" id="stage-name">空花盆</div>
+    <div class="stage-pct" id="stage-pct"></div>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+
+  <!-- Main Buttons -->
+  <div class="main-btn-area">
+    <div class="combo-display" id="combo-display"></div>
+    <button class="water-btn" id="water-btn" onclick="waterPlant()">💧 浇一下</button>
+    <div class="secondary-actions">
+      <button class="secondary-btn" id="share-btn" onclick="shareFlower()">📤 分享<span class="s-label" id="share-label">500💰 · 3次</span></button>
+      <button class="secondary-btn" id="ad-btn" style="display:none;" onclick="watchAd()">📺 看视频加速<span class="s-label">30%</span></button>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <button class="nav-btn" id="nav-sell-btn" onclick="openSellModal()"><span class="nav-emoji">🌸</span>卖花</button>
+    <button class="nav-btn" id="nav-seed-btn" onclick="openSeedShop()"><span class="nav-emoji">🌱</span>种子</button>
+    <button class="nav-btn" id="nav-fert-btn" onclick="openFertShop()"><span class="nav-emoji">🧪</span>肥料</button>
+  </div>
+</div>
+
+<!-- ============ Collection Modal ============ -->
+<div class="modal-overlay" id="collection-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <button class="modal-close-btn" onclick="closeModal('collection-modal')" aria-label="关闭">✕</button>
+    <div class="modal-title">
+      <span class="modal-title-main">📖 花语图鉴</span>
+      <span class="modal-title-sub">收集每一朵绽放的故事</span>
+    </div>
+    <div class="filter-tabs" id="filter-tabs">
+      <button class="filter-tab active" data-filter="all">全部</button>
+      <button class="filter-tab" data-filter="0">🌿 普通</button>
+      <button class="filter-tab" data-filter="1">💎 稀有</button>
+      <button class="filter-tab" data-filter="2">💜 史诗</button>
+      <button class="filter-tab" data-filter="3">👑 传说</button>
+    </div>
+    <div class="collection-grid" id="collection-grid"></div>
+    <div class="collection-hint" id="collection-hint"></div>
+  </div>
+</div>
+
+<!-- ============ Seed Shop Modal ============ -->
+<div class="modal-overlay" id="seed-shop-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <button class="modal-close-btn" onclick="closeModal('seed-shop-modal')" aria-label="关闭">✕</button>
+    <div class="modal-title">🌱 种子商店</div>
+    <div class="shop-seed-display" id="seed-shop-display">🌱</div>
+    <div class="shop-price-row">
+      <span>💰 20 金币/包</span>
+      <span>🎒 拥有: <b id="seed-count-shop">0</b></span>
+    </div>
+    <div class="rarity-odds" id="rarity-odds">
+      <span class="odds-n">普通 50%</span>
+      <span class="odds-r">稀有 28%</span>
+      <span class="odds-e">史诗 15%</span>
+      <span class="odds-l">传说 7%</span>
+    </div>
+    <button class="shop-btn" id="buy-seed-btn" onclick="buySeed()">💰 20 购买种子包</button>
+    <button class="shop-btn" id="open-seed-btn" onclick="openSeed()" style="background:linear-gradient(180deg,#FCD34D,#F59E0B,#D97706);box-shadow:0 4px 0 #B45309;" disabled>🎁 打开种子包</button>
+    <button class="shop-btn free-seed-btn" id="free-seed-btn" onclick="buyFreeSeed()">🌿 免费领取（仅普通种子）</button>
+    <button class="ad-btn" id="seed-ad-btn" onclick="watchSeedAd()">📺 看视频得种子</button>
+    <div class="open-result" id="open-result"></div>
+  </div>
+</div>
+
+<!-- ============ Fertilizer Shop Modal ============ -->
+<div class="modal-overlay" id="fert-shop-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <button class="modal-close-btn" onclick="closeModal('fert-shop-modal')" aria-label="关闭">✕</button>
+    <div class="modal-title">🧪 肥料商店</div>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px;">
+      <div style="flex:1;min-width:120px;background:rgba(74,55,40,0.03);border-radius:20px;padding:16px;text-align:center;">
+        <div style="font-size:40px;">🧪</div>
+        <div style="font-weight:800;margin:4px 0;">小肥料</div>
+        <div style="font-size:15px;color:var(--text-light);">减免进度 15%</div>
+        <div style="font-weight:700;color:#F59E0B;margin:6px 0;font-size:16px;" id="fert-small-price">💰 12 金币</div>
+        <div style="font-size:14px;margin:4px 0;color:var(--text);" id="fert-small-qty">🎒 ×0</div>
+        <button class="shop-btn" style="width:100%;font-size:16px;padding:12px;" onclick="buyFertilizer('small')">🛒 购买</button>
+        <button class="shop-btn fert-use-btn" id="use-small-btn" style="width:100%;font-size:16px;padding:12px;margin-top:6px;" onclick="useFertilizer('small')" disabled>🧪 使用</button>
+      </div>
+      <div style="flex:1;min-width:120px;background:rgba(74,55,40,0.03);border-radius:20px;padding:16px;text-align:center;">
+        <div style="font-size:40px;">🧪</div>
+        <div style="font-weight:800;margin:4px 0;">大肥料</div>
+        <div style="font-size:15px;color:var(--text-light);">减免进度 40%</div>
+        <div style="font-weight:700;color:#F59E0B;margin:6px 0;font-size:16px;" id="fert-large-price">💰 50 金币</div>
+        <div style="font-size:14px;margin:4px 0;color:var(--text);" id="fert-large-qty">🎒 ×0</div>
+        <button class="shop-btn" style="width:100%;font-size:16px;padding:12px;" onclick="buyFertilizer('large')">🛒 购买</button>
+        <button class="shop-btn fert-use-btn" id="use-large-btn" style="width:100%;font-size:16px;padding:12px;margin-top:6px;" onclick="useFertilizer('large')" disabled>🧪 使用</button>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:12px;">
+      <span style="font-size:15px;color:var(--text-light);">🎒 拥有：小肥料 <b id="fert-small-count">0</b> | 大肥料 <b id="fert-large-count">0</b></span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Sell Modal ============ -->
+<div class="modal-overlay" id="sell-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <button class="modal-close-btn" onclick="closeModal('sell-modal')" aria-label="关闭">✕</button>
+    <div class="modal-title">🌸 卖出花朵</div>
+    <div style="text-align:center;padding:20px;" id="sell-content">
+      <div style="font-size:64px;" id="sell-emoji">🪴</div>
+      <div style="font-size:20px;font-weight:800;margin:8px 0;" id="sell-name">花盆空空</div>
+      <div style="color:#F59E0B;font-weight:700;" id="sell-price">💰 0 金币</div>
+    </div>
+    <button class="shop-btn" id="sell-btn" onclick="sellFlower()" disabled>💰 卖出</button>
+  </div>
+</div>
+
+<!-- ============ Daily Tasks Modal ============ -->
+<div class="modal-overlay" id="tasks-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <button class="modal-close-btn" onclick="closeModal('tasks-modal')" aria-label="关闭">✕</button>
+    <div class="modal-title">📋 每日任务</div>
+    <div id="tasks-list"></div>
+  </div>
+</div>
+
+<!-- ============ Tutorial Overlay ============ -->
+<div class="tutorial-overlay" id="tutorial-overlay">
+  <div class="tutorial-box" id="tutorial-box"></div>
+</div>
+
+<!-- ============ Toast ============ -->
+<div class="toast" id="toast"></div>
+
+<!-- ============ Coin Fly Container ============ -->
+<div id="coin-fly-container"></div>
+
+<!-- ============ Offline Modal ============ -->
+<div class="modal-overlay" id="offline-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <button class="modal-close-btn" onclick="closeModal('offline-modal')" aria-label="关闭">✕</button>
+    <div class="modal-title">⏰ 欢迎回来！</div>
+    <div class="offline-content">
+      <div style="font-size:18px;">你离开的这段时间，花盆悄悄积攒了</div>
+      <div class="offline-drops">💧 <b id="offline-drops">0</b> 滴水</div>
+      <button class="shop-btn" onclick="claimOfflineDrops()">💧 收下</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Share Button (hidden trigger) ============ -->
+<button id="share-trigger" style="display:none;" onclick="shareFlower()"></button>
+
+<script>
+// ============================================================
+//  AD CONFIGURATION
+// ============================================================
+const AD_UNIT_ID = ''; // 抖音: 'adunit-xxxxxxxxxxxx' / 微信: 'adunit-xxxxxxxxxxxx'
+
+// ============================================================
+//  FLOWER DATABASE (44 flowers)
+// ============================================================
+const FLOWERS = [
+  // === NORMAL (3) — 3 stages: seed / bud / bloom ===
+  { id:'dandelion', name:'蒲公英', emoji:'🌼', stages:['🌰','🌿','🌼'], rarity:0, clicks:50, price:3 },
+  { id:'daisy', name:'小雏菊', emoji:'🏵️', stages:['🌰','🪷','🏵️'], rarity:0, clicks:50, price:3 },
+  { id:'clover', name:'三叶草', emoji:'☘️', stages:['🌰','🍀','☘️'], rarity:0, clicks:50, price:3 },
+  { id:'fourleaf', name:'四叶草', emoji:'🍀', stages:['🌰','🍀','🍀✨'], rarity:0, clicks:50, price:5 },
+
+  // === RARE (10) — 3 stages each ===
+  { id:'cherry', name:'樱花', emoji:'🌸', stages:['🌰','🪷','🌸'], rarity:1, clicks:200, price:25 },
+  { id:'peach', name:'桃花', emoji:'🌺', stages:['🌰','🌷','🌺'], rarity:1, clicks:200, price:25 },
+  { id:'crabapple', name:'海棠', emoji:'🏵️', stages:['🌰','🌷','🏵️'], rarity:1, clicks:200, price:25 },
+  { id:'jasmine', name:'茉莉', emoji:'⚪', stages:['🌰','🪷','⚪'], rarity:1, clicks:200, price:25 },
+  { id:'bellflower', name:'桔梗', emoji:'💠', stages:['🌰','🪷','💠'], rarity:1, clicks:200, price:25 },
+  { id:'hyacinth', name:'风信子', emoji:'🪻', stages:['🌰','🌿','🪻'], rarity:1, clicks:200, price:25 },
+  { id:'lavender', name:'薰衣草', emoji:'💜', stages:['🌰','🌿','💜'], rarity:1, clicks:200, price:25 },
+  { id:'gardenia', name:'栀子花', emoji:'🤍', stages:['🌰','🪷','🤍'], rarity:1, clicks:200, price:25 },
+  { id:'azalea', name:'杜鹃', emoji:'❤️', stages:['🌰','🌷','❤️'], rarity:1, clicks:200, price:25 },
+  { id:'camellia', name:'茶花', emoji:'🌹', stages:['🌰','🌷','🌹'], rarity:1, clicks:200, price:25 },
+
+  // === EPIC (10) — 3 stages ===
+  { id:'rose', name:'玫瑰', emoji:'🌹', stages:['🌰','🌷','🌹'], rarity:2, clicks:1000, price:120 },
+  { id:'peony', name:'牡丹', emoji:'🌺', stages:['🌰','🌷','🌺'], rarity:2, clicks:1000, price:120 },
+  { id:'lotus', name:'荷花', emoji:'🪷', stages:['🌰','🍃','🪷'], rarity:2, clicks:1000, price:120 },
+  { id:'orchid', name:'兰花', emoji:'🦋', stages:['🌰','🌿','🦋'], rarity:2, clicks:1000, price:120 },
+  { id:'lily', name:'百合', emoji:'⚜️', stages:['🌰','🌷','⚜️'], rarity:2, clicks:1000, price:120 },
+  { id:'osmanthus', name:'桂花', emoji:'🌟', stages:['🌰','🌿','🌟'], rarity:2, clicks:1000, price:120 },
+  { id:'kapok', name:'木棉', emoji:'🔴', stages:['🌰','🌷','🔴'], rarity:2, clicks:1000, price:120 },
+  { id:'wisteria', name:'紫藤', emoji:'🟣', stages:['🌰','🌿','🟣'], rarity:2, clicks:1000, price:120 },
+  { id:'magnolia', name:'玉兰', emoji:'🤍', stages:['🌰','🌷','🤍'], rarity:2, clicks:1000, price:120 },
+  { id:'hydrangea', name:'绣球', emoji:'🔵', stages:['🌰','🌿','🔵'], rarity:2, clicks:1000, price:120 },
+
+  // === LEGENDARY (20) — 3 stages ===
+  { id:'gold_sunflower', name:'金色向日葵', emoji:'🌻', deco:'✨', stages:['🌰','🌻','🌻✨'], rarity:3, clicks:50000, price:800 },
+  { id:'red_tulip', name:'红郁金香', emoji:'🌷', deco:'🔥', stages:['🌰','🌷','🌷🔥'], rarity:3, clicks:50000, price:800 },
+  { id:'blue_enchantress', name:'蓝色妖姬', emoji:'🌹', deco:'💎', stages:['🌰','🌷','🌹💎'], rarity:3, clicks:50000, price:800 },
+  { id:'king_protea', name:'帝王花', emoji:'👑🌺', deco:'', stages:['🌰','🌷','👑🌺'], rarity:3, clicks:50000, price:800 },
+  { id:'red_spider_lily', name:'彼岸花', emoji:'🔴🌸', deco:'', stages:['🌰','🌿','🔴🌸'], rarity:3, clicks:50000, price:800 },
+  { id:'epiphyllum', name:'昙花', emoji:'🌙🌺', deco:'', stages:['🌰','🌷','🌙🌺'], rarity:3, clicks:50000, price:800 },
+  { id:'bird_of_paradise', name:'鹤望兰', emoji:'🕊️🌸', deco:'', stages:['🌰','🌿','🕊️🌸'], rarity:3, clicks:50000, price:800 },
+  { id:'gloriosa', name:'嘉兰', emoji:'🔥🌺', deco:'', stages:['🌰','🌿','🔥🌺'], rarity:3, clicks:50000, price:800 },
+  { id:'meconopsis', name:'绿绒蒿', emoji:'💚🌺', deco:'', stages:['🌰','🌿','💚🌺'], rarity:3, clicks:50000, price:800 },
+  { id:'anemone', name:'银莲花', emoji:'⛄🌸', deco:'', stages:['🌰','🌷','⛄🌸'], rarity:3, clicks:50000, price:800 },
+  { id:'black_rose', name:'黑玫瑰', emoji:'🌹', deco:'🖤', stages:['🌰','🌷','🌹🖤'], rarity:3, clicks:50000, price:800 },
+  { id:'green_mum', name:'绿菊', emoji:'🌼', deco:'💚', stages:['🌰','🌿','🌼💚'], rarity:3, clicks:50000, price:800 },
+  { id:'moonflower', name:'月光花', emoji:'🌙🌸', deco:'', stages:['🌰','🌷','🌙🌸'], rarity:3, clicks:50000, price:800 },
+  { id:'crystal_flower', name:'水晶花', emoji:'💎🌸', deco:'', stages:['🌰','🌷','💎🌸'], rarity:3, clicks:50000, price:800 },
+  { id:'snow_lotus', name:'雪莲', emoji:'❄️🌸', deco:'', stages:['🌰','🌷','❄️🌸'], rarity:3, clicks:50000, price:800 },
+  { id:'gentian', name:'龙胆花', emoji:'🐉🌸', deco:'', stages:['🌰','🌿','🐉🌸'], rarity:3, clicks:50000, price:800 },
+  { id:'borage', name:'琉璃苣', emoji:'🔮🌸', deco:'', stages:['🌰','🌷','🔮🌸'], rarity:3, clicks:50000, price:800 },
+  { id:'wintersweet', name:'蜡梅', emoji:'🕯️🌸', deco:'', stages:['🌰','🌷','🕯️🌸'], rarity:3, clicks:50000, price:800 },
+  { id:'clematis', name:'铁线莲', emoji:'⛓️🌸', deco:'', stages:['🌰','🌿','⛓️🌸'], rarity:3, clicks:50000, price:800 },
+  { id:'angel_trumpet', name:'天使号角', emoji:'😇🌺', deco:'', stages:['🌰','🌷','😇🌺'], rarity:3, clicks:50000, price:800 },
+];
+
+// ============================================================
+//  GROWTH STAGE NAMES
+// ============================================================
+const STAGES_3 = ['🌰 种子期', '🌷 花苞期', '🌸 绽放期'];
+const TOTAL = FLOWERS.length; // 44
+
+// ============================================================
+//  GAME STATE
+// ============================================================
+const DEFAULT_STATE = {
+  coins: 0,
+  seeds: 0,
+  fertilizerSmall: 0,
+  fertilizerLarge: 0,
+  fertSmallBuys: 0,
+  fertLargeBuys: 0,
+  currentFlowerId: null,
+  currentProgress: 0,
+  collection: {},
+  comboClicks: 0,
+  lastClickTime: 0,
+  lastOfflineTime: Date.now(),
+  dailyData: {
+    date: '',
+    waterFirstDone: false,
+    dailyWaterCount: 0,
+    adCount: 0,
+    seedAdDone: false,
+    shareCount: 0,
+    tasks: { water3: false, share1: false, sell1: false }
+  },
+  tutorialProgress: 0,  // 0=未开始, 1-5=步骤, 5=已完成
+  tutorialPhase: '',     // sub-step label
+  adCooldown: 0,
+  totalReductionUsed: 0, // per flower
+};
+
+let G = JSON.parse(JSON.stringify(DEFAULT_STATE));
+G.dailyData.tasks = { water3: false, share1: false, sell1: false };
+
+// ============================================================
+//  INDEXEDDB MIRROR — more persistent than localStorage on mobile
+// ============================================================
+const IDB_NAME = 'flower_garden_db';
+const IDB_VERSION = 1;
+let _idb = null;
+function _idbOpen() {
+  return new Promise(function(resolve, reject) {
+    if (_idb) { resolve(_idb); return; }
+    if (!window.indexedDB) { reject(new Error('IDB not available')); return; }
+    var req = indexedDB.open(IDB_NAME, IDB_VERSION);
+    req.onupgradeneeded = function(e) {
+      var db = e.target.result;
+      if (!db.objectStoreNames.contains('saves')) {
+        db.createObjectStore('saves', { keyPath: 'slot' });
+      }
+    };
+    req.onsuccess = function(e) { _idb = e.target.result; resolve(_idb); };
+    req.onerror = function(e) { reject(e.target.error); };
+  });
+}
+function _idbSave(slot, data) {
+  _idbOpen().then(function(db) {
+    var tx = db.transaction('saves', 'readwrite');
+    var store = tx.objectStore('saves');
+    store.put({ slot: slot, data: data, ts: Date.now() });
+  }).catch(function(){});
+}
+function _idbLoad(slot) {
+  return _idbOpen().then(function(db) {
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction('saves', 'readonly');
+      var store = tx.objectStore('saves');
+      var req = store.get(slot);
+      req.onsuccess = function(e) {
+        var row = e.target.result;
+        resolve(row ? row.data : null);
+      };
+      req.onerror = function(e) { reject(e.target.error); };
+    });
+  }).catch(function(){ return null; });
+}
+
+function saveGame() {
+  G.lastOfflineTime = Date.now();
+  var json = JSON.stringify(G);
+  // Primary: localStorage
+  try { localStorage.setItem('flower_garden_v2', json); } catch(e) {}
+  // Mirror: IndexedDB (more persistent, survives browser cleanup)
+  _idbSave('main', json);
+}
+function loadGame() {
+  var loaded = false;
+  // Try localStorage first
+  try {
+    var raw = localStorage.getItem('flower_garden_v2');
+    if (raw) {
+      var saved = JSON.parse(raw);
+      G = Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), saved);
+      loaded = true;
+    }
+  } catch(e) { /* ignore */ }
+  // If localStorage was empty, try IndexedDB mirror
+  if (!loaded) {
+    try {
+      // Sync IDB check — we can't await in sync init, so we use a flag
+      // The actual IDB restore happens in init() if needed
+    } catch(e) {}
+  }
+  // Apply migrations if we loaded data
+  if (loaded) {
+    G.dailyData = Object.assign({ date:'', waterFirstDone:false, dailyWaterCount:0, adCount:0, seedAdDone:false, shareCount:0, tasks:{water3:false,share1:false,sell1:false} }, G.dailyData||{});
+    G.dailyData.tasks = Object.assign({ water3:false, share1:false, sell1:false }, (G.dailyData||{}).tasks||{});
+    // Migrate old tutorial fields (check saved data before defaults overwrote)
+    if (typeof G.tutorialPhase === 'undefined') G.tutorialPhase = '';
+    // Clean up old fields
+    delete G.tutorialComplete;
+    delete G.tutorialStep;
+    delete G.firstLegendaryGiven;
+    // Safety: if save exists and tutorialProgress is 0, this is an old player — skip tutorial
+    if (G.tutorialProgress === 0) {
+      G.tutorialProgress = 5;
+      G.tutorialPhase = '';
+    }
+  }
+  // Flag: true if we need async IDB restore
+  window._needIDBRestore = !loaded;
+}
+
+// ============================================================
+//  DAILY RESET
+// ============================================================
+function getToday() { return new Date().toISOString().slice(0,10); }
+function checkDailyReset() {
+  const today = getToday();
+  if (G.dailyData.date !== today) {
+    G.dailyData = {
+      date: today,
+      waterFirstDone: false,
+      dailyWaterCount: 0,
+      adCount: 0,
+      seedAdDone: false,
+      shareCount: 0,
+      tasks: { water3: false, share1: false, sell1: false }
+    };
+    G.adCooldown = 0;
+    G.totalReductionUsed = 0;
+    saveGame();
+  }
+}
+
+// ============================================================
+//  OFFLINE PROGRESS
+// ============================================================
+function calcOfflineProgress() {
+  if (!G.currentFlowerId) return 0;
+  const flower = getFlowerById(G.currentFlowerId);
+  if (!flower) return 0;
+  const now = Date.now();
+  const elapsed = Math.floor((now - G.lastOfflineTime) / 60000); // minutes
+  if (elapsed <= 0) return 0;
+  const drops = Math.floor(elapsed * 0.5);
+  const cap = Math.floor(flower.clicks * 0.2);
+  return Math.min(drops, cap);
+}
+
+// ============================================================
+//  HELPERS
+// ============================================================
+function getFlowerById(id) { return FLOWERS.find(f => f.id === id); }
+function getCurrentFlower() { return G.currentFlowerId ? getFlowerById(G.currentFlowerId) : null; }
+function getCollectedCount() { return Object.keys(G.collection).length; }
+function fmt(n) { return n >= 10000 ? (n/10000).toFixed(1)+'万' : n.toLocaleString('zh-CN'); }
+
+function getFlowerEmoji(flower, stageIdx) {
+  // Stage-specific emoji: 3 stages — seed / bud / bloom
+  if (stageIdx !== undefined && flower.stages && flower.stages.length === 3) {
+    return flower.stages[Math.min(stageIdx, 2)];
+  }
+  // Fallback: default bloom emoji (for collection, sell modal, etc.)
+  return flower.emoji + (flower.deco || '');
+}
+
+function getStageInfo(flower, progress) {
+  // All flowers use 3 stages: 0-33% seed, 33-66% bud, 66-100% bloom
+  var stepSize = flower.clicks / 3;
+  var stageIdx = Math.min(Math.floor(progress / stepSize), 2);
+  var stageProgress = progress >= flower.clicks ? stepSize : (progress % stepSize);
+  var stagePctVal = Math.round(stageProgress / stepSize * 100);
+  return {
+    stageIdx: stageIdx,
+    name: STAGES_3[stageIdx],
+    pct: Math.round(progress / flower.clicks * 100),
+    stagePct: stagePctVal
+  };
+}
+
+// ============================================================
+//  VIBRATION
+// ============================================================
+function vibrate(ms) {
+  if (navigator.vibrate) {
+    try { navigator.vibrate(ms); } catch(e) {}
+  }
+}
+
+// ============================================================
+//  TOAST
+// ============================================================
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+// ============================================================
+//  COIN FLY
+// ============================================================
+function coinFly(fromEl, amount) {
+  if (!fromEl) return;
+  const rect = fromEl.getBoundingClientRect();
+  const coin = document.createElement('div');
+  coin.className = 'coin-fly';
+  coin.textContent = '💰 +'+amount;
+  coin.style.left = rect.left + rect.width/2 + 'px';
+  coin.style.top = rect.top + 'px';
+  document.getElementById('coin-fly-container').appendChild(coin);
+
+  const target = document.getElementById('coin-val');
+  const tRect = target.getBoundingClientRect();
+  var dx = tRect.left + tRect.width/2 - (rect.left + rect.width/2);
+  var dy = tRect.top - rect.top;
+  coin.style.setProperty('--cx', dx + 'px');
+  coin.style.setProperty('--cy', dy + 'px');
+  setTimeout(function() { coin.remove(); }, 600);
+}
+
+// ============================================================
+//  PETAL PARTICLES
+// ============================================================
+function spawnPetals(count) {
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const petal = document.createElement('div');
+      petal.className = 'petal';
+      petal.textContent = ['🌸','💮','🏵️','🌷','🌺','✿','🌼'][Math.floor(Math.random()*7)];
+      petal.style.left = Math.random() * 100 + '%';
+      petal.style.fontSize = (14 + Math.random() * 18) + 'px';
+      petal.style.animationDuration = (3 + Math.random() * 5) + 's';
+      petal.style.animationDelay = '0s';
+      document.body.appendChild(petal);
+      setTimeout(() => petal.remove(), 8000);
+    }, i * 120);
+  }
+}
+
+function spawnWaterDrops(count) {
+  var btn = document.getElementById('water-btn');
+  var pot = document.getElementById('pot-container');
+  if (!btn || !pot) return;
+  var bRect = btn.getBoundingClientRect();
+  var pRect = pot.getBoundingClientRect();
+  var baseX = bRect.left + bRect.width/2;
+  var baseY = bRect.bottom;
+
+  for (var i = 0; i < count; i++) {
+    setTimeout(function() {
+      var drop = document.createElement('div');
+      drop.className = 'water-drop';
+      drop.textContent = '💧';
+      drop.style.left = (baseX + (Math.random() - 0.5) * 80) + 'px';
+      drop.style.top = (baseY - Math.random() * 10) + 'px';
+      drop.style.fontSize = (12 + Math.random() * 10) + 'px';
+      var targetY = pRect.top + pRect.height * 0.3 + Math.random() * pRect.height * 0.4;
+      var dy = targetY - baseY;
+      var dx = (Math.random() - 0.5) * 40;
+      drop.style.setProperty('--dx', dx + 'px');
+      drop.style.setProperty('--dy', dy + 'px');
+      document.body.appendChild(drop);
+      setTimeout(function() { drop.remove(); }, 750);
+    }, i * 40);
+  }
+}
+
+// ============================================================
+//  SPARKLE PARTICLES — small star/sparkle burst
+// ============================================================
+function spawnSparkles(count) {
+  var cx = window.innerWidth / 2;
+  var cy = window.innerHeight / 2;
+  var sparkleEmojis = ['✨','✦','✧','⭐','💫','⚡','🌟','🔸'];
+  for (var i = 0; i < count; i++) {
+    setTimeout(function() {
+      var spark = document.createElement('div');
+      spark.className = 'sparkle';
+      spark.textContent = sparkleEmojis[Math.floor(Math.random() * sparkleEmojis.length)];
+      spark.style.left = cx + 'px';
+      spark.style.top = cy + 'px';
+      spark.style.fontSize = (10 + Math.random() * 20) + 'px';
+      var angle = Math.random() * Math.PI * 2;
+      var dist1 = 30 + Math.random() * 60;
+      var dist2 = 80 + Math.random() * 180;
+      spark.style.setProperty('--sx', Math.cos(angle) * dist1 + 'px');
+      spark.style.setProperty('--sy', Math.sin(angle) * dist1 + 'px');
+      spark.style.setProperty('--ex', Math.cos(angle) * dist2 + 'px');
+      spark.style.setProperty('--ey', Math.sin(angle) * dist2 + 'px');
+      document.body.appendChild(spark);
+      setTimeout(function() { spark.remove(); }, 1600);
+    }, i * 40);
+  }
+}
+
+// ============================================================
+//  CONFETTI PARTICLES — colorful falling pieces
+// ============================================================
+function spawnConfetti(count) {
+  var confettiEmojis = ['🎊','🎉','🎀','💫','✨','🌟','💖','💛','💚','💙','💜','🟡','🟢','🔵','🟣'];
+  var cx = window.innerWidth / 2;
+  for (var i = 0; i < count; i++) {
+    setTimeout(function() {
+      var piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.textContent = confettiEmojis[Math.floor(Math.random() * confettiEmojis.length)];
+      piece.style.left = (cx - 100 + Math.random() * 200) + 'px';
+      piece.style.top = '-10px';
+      piece.style.fontSize = (10 + Math.random() * 18) + 'px';
+      piece.style.setProperty('--cf-dur', (2.5 + Math.random() * 2.5) + 's');
+      piece.style.setProperty('--cf-dx1', (Math.random() - 0.5) * 150 + 'px');
+      piece.style.setProperty('--cf-dx2', (Math.random() - 0.5) * 150 + 'px');
+      piece.style.setProperty('--cf-dx3', (Math.random() - 0.5) * 120 + 'px');
+      piece.style.setProperty('--cf-dx4', (Math.random() - 0.5) * 100 + 'px');
+      document.body.appendChild(piece);
+      setTimeout(function() { piece.remove(); }, 3500);
+    }, i * 35);
+  }
+}
+
+// ============================================================
+//  STAR BURST — bigger gold stars exploding outward
+// ============================================================
+function spawnStarBurst(count) {
+  var cx = window.innerWidth / 2;
+  var cy = window.innerHeight / 2;
+  var starEmojis = ['⭐','🌟','💫','✨','⚡','🔥','💥'];
+  for (var i = 0; i < count; i++) {
+    setTimeout(function() {
+      var star = document.createElement('div');
+      star.className = 'star-burst-particle';
+      star.textContent = starEmojis[Math.floor(Math.random() * starEmojis.length)];
+      star.style.left = cx + 'px';
+      star.style.top = cy + 'px';
+      star.style.fontSize = (16 + Math.random() * 28) + 'px';
+      var angle = Math.random() * Math.PI * 2;
+      var sdist = 20 + Math.random() * 50;
+      var edist = 120 + Math.random() * 250;
+      star.style.setProperty('--sbx', Math.cos(angle) * sdist + 'px');
+      star.style.setProperty('--sby', Math.sin(angle) * sdist + 'px');
+      star.style.setProperty('--ebx', Math.cos(angle) * edist + 'px');
+      star.style.setProperty('--eby', Math.sin(angle) * edist + 'px');
+      document.body.appendChild(star);
+      setTimeout(function() { star.remove(); }, 1300);
+    }, i * 25);
+  }
+}
+
+// ============================================================
+//  SCREEN FLASH — brief white flash
+// ============================================================
+function screenFlash() {
+  var flash = document.createElement('div');
+  flash.className = 'screen-flash';
+  document.body.appendChild(flash);
+  setTimeout(function() { flash.remove(); }, 500);
+}
+
+// ============================================================
+//  AD SYSTEM
+// ============================================================
+function initAd() {
+  if (!AD_UNIT_ID) {
+    console.log('广告位ID未配置，使用模拟广告');
+    return null;
+  }
+  // === 抖音激励视频广告接入 ===
+  // if (typeof tt !== 'undefined' && tt.createRewardedVideoAd) {
+  //   const rewardedVideoAd = tt.createRewardedVideoAd({ adUnitId: AD_UNIT_ID });
+  //   return rewardedVideoAd;
+  // }
+  // === 微信激励视频广告接入 ===
+  // if (typeof wx !== 'undefined' && wx.createRewardedVideoAd) {
+  //   const rewardedVideoAd = wx.createRewardedVideoAd({ adUnitId: AD_UNIT_ID });
+  //   return rewardedVideoAd;
+  // }
+  console.log('广告位ID未配置，使用模拟广告');
+  return null;
+}
+
+const adInstance = initAd();
+
+function showRewardedAd(callback) {
+  if (!AD_UNIT_ID || !adInstance) {
+    // Simulated ad
+    showToast('📺 观看广告中（模拟）...');
+    setTimeout(() => {
+      callback(true);
+    }, 2000);
+    return;
+  }
+  // Real ad
+  adInstance.show().then(() => {
+    callback(true);
+  }).catch(() => {
+    adInstance.load().then(() => adInstance.show()).then(() => {
+      callback(true);
+    }).catch(() => {
+      showToast('广告加载失败，请稍后再试');
+      callback(false);
+    });
+  });
+}
+
+// ============================================================
+//  UI UPDATE
+// ============================================================
+function updateUI() {
+  document.getElementById('coin-val').textContent = fmt(G.coins);
+  document.getElementById('seed-val').textContent = G.seeds;
+  const totalFert = G.fertilizerSmall + G.fertilizerLarge;
+  document.getElementById('fert-val').textContent = totalFert;
+  const collCount = getCollectedCount();
+  const collPct = Math.round(collCount / TOTAL * 100);
+  document.getElementById('coll-progress-text').textContent = collCount + '/' + TOTAL;
+  document.getElementById('coll-progress-fill').style.width = collPct + '%';
+  document.getElementById('fert-small-count').textContent = G.fertilizerSmall;
+  document.getElementById('fert-large-count').textContent = G.fertilizerLarge;
+  // Update fertilizer quantity displays and use button states
+  var sq = document.getElementById('fert-small-qty');
+  if (sq) sq.textContent = '🎒 ×' + G.fertilizerSmall;
+  var lq = document.getElementById('fert-large-qty');
+  if (lq) lq.textContent = '🎒 ×' + G.fertilizerLarge;
+  var usb = document.getElementById('use-small-btn');
+  if (usb) usb.disabled = G.fertilizerSmall <= 0;
+  var ulb = document.getElementById('use-large-btn');
+  if (ulb) ulb.disabled = G.fertilizerLarge <= 0;
+  // Update fertilizer prices
+  var sp = document.getElementById('fert-small-price');
+  if (sp) sp.textContent = '💰 ' + (12 * Math.pow(2, G.fertSmallBuys || 0)) + ' 金币';
+  var lp = document.getElementById('fert-large-price');
+  if (lp) lp.textContent = '💰 ' + (50 * Math.pow(2, G.fertLargeBuys || 0)) + ' 金币';
+  document.getElementById('seed-count-shop').textContent = G.seeds;
+  updateOpenSeedBtn();
+  updatePotDisplay();
+  updateAdBtn();
+  updateShareBtn();
+  updateComboDisplay();
+  updateBellBadge();
+  updateSeedAdBtn();
+  updateFreeSeedBtn();
+  updateTutorialLocks();
+}
+
+function updateTutorialLocks() {
+  // No button locking — tutorial uses tooltips only.
+  // Just ensure all nav buttons are unlocked at all times.
+  setButtonLock('nav-sell-btn', false);
+  setButtonLock('nav-seed-btn', false);
+  setButtonLock('nav-fert-btn', false);
+}
+
+function updateSeedAdBtn() {
+  const btn = document.getElementById('seed-ad-btn');
+  const totalAds = G.dailyData.adCount + (G.dailyData.seedAdDone ? 1 : 0);
+  if (totalAds >= 5 || G.dailyData.seedAdDone) {
+    btn.style.display = 'none';
+  } else {
+    btn.style.display = 'block';
+  }
+}
+
+function updatePotDisplay() {
+  const flower = getCurrentFlower();
+  const display = document.getElementById('flower-display');
+  const stageName = document.getElementById('stage-name');
+  const stagePct = document.getElementById('stage-pct');
+  const progressFill = document.getElementById('progress-fill');
+  const soil = document.getElementById('pot-soil');
+  const sellBtn = document.getElementById('sell-btn');
+  const waterBtn = document.getElementById('water-btn');
+  const nameLabel = document.getElementById('flower-name-label');
+
+  var rarityTags = ['n','r','e','l'];
+  var rarityNames = ['普通','稀有','史诗','传说'];
+  var potScene = document.getElementById('pot-area').querySelector('.pot-scene');
+
+  if (!flower) {
+    display.textContent = '🌱';
+    display.className = 'flower-display';
+    display.style.transform = '';
+    stageName.textContent = '空花盆';
+    stagePct.textContent = '';
+    progressFill.style.width = '0%';
+    // Reset fill
+    var fillEl = document.getElementById('flower-fill');
+    if (fillEl) { fillEl.style.setProperty('--fill-pct', '0'); fillEl.className = 'flower-fill'; }
+    soil.classList.remove('wet');
+    sellBtn.disabled = true;
+    waterBtn.textContent = '🌱 种一朵花';
+    nameLabel.innerHTML = '';
+    document.getElementById('sell-emoji').textContent = '🪴';
+    document.getElementById('sell-name').textContent = '花盆空空';
+    document.getElementById('sell-price').textContent = '💰 0 金币';
+    if (potScene) potScene.classList.add('empty');
+    return;
+  }
+
+  if (potScene) potScene.classList.remove('empty');
+
+  waterBtn.textContent = '💧 浇一下';
+  const info = getStageInfo(flower, G.currentProgress);
+  display.textContent = getFlowerEmoji(flower, info.stageIdx);
+
+  // Fill effect: set --fill-pct and fill stage class
+  var fillEl2 = document.getElementById('flower-fill');
+  if (fillEl2) {
+    fillEl2.style.setProperty('--fill-pct', info.stagePct);
+    var fillClass = 'flower-fill';
+    if (info.stageIdx === 0) fillClass += ' fill-seed';
+    else if (info.stageIdx === 1) fillClass += ' fill-bud';
+    else fillClass += ' fill-bloom';
+    if (fillEl2.className !== fillClass) fillEl2.className = fillClass;
+  }
+
+  // Flower rarity glow class
+  var rarityTag = rarityTags[flower.rarity];
+  var rarityClass = 'rarity-' + rarityTag;
+  if (!display.classList.contains(rarityClass)) {
+    display.className = 'flower-display ' + rarityClass;
+  }
+
+  // Flower name + rarity label
+  nameLabel.innerHTML = getFlowerEmoji(flower) + ' ' + flower.name +
+    ' <span class="rarity-tag ' + rarityTag + '">' + rarityNames[flower.rarity] + '</span>';
+
+  // Scale flower based on progress
+  var baseScale = 1 + (info.pct / 100) * 0.25;
+  display.style.transform = 'scale(' + baseScale + ')';
+
+  // Stage display: name big, percentage even bigger
+  var newStageText, newPctText;
+  if (G.currentProgress >= flower.clicks) {
+    newStageText = '✨ 完全绽放！';
+    newPctText = '100%';
+  } else {
+    newStageText = info.name;
+    newPctText = info.stagePct + '%';
+  }
+  if (stageName.textContent !== newStageText) {
+    stageName.textContent = newStageText;
+    stageName.classList.remove('changed');
+    void stageName.offsetWidth;
+    stageName.classList.add('changed');
+  }
+  stagePct.textContent = newPctText;
+  progressFill.style.width = info.pct + '%';
+
+  // Soil wetness
+  if (G.currentProgress > 0) {
+    soil.classList.add('wet');
+    var wetness = Math.min(G.currentProgress / flower.clicks, 1);
+    soil.style.background = 'linear-gradient(180deg, #5D4037 ' + ((1-wetness)*100) + '%, #3E2723 ' + ((1-wetness*0.6)*100) + '%, #2E1B0E 100%)';
+  } else {
+    soil.classList.remove('wet');
+    soil.style.background = '';
+  }
+
+  // Sell modal
+  document.getElementById('sell-emoji').textContent = getFlowerEmoji(flower);
+  document.getElementById('sell-name').textContent = flower.name;
+  document.getElementById('sell-price').textContent = '💰 ' + getSellPrice() + ' 金币';
+
+  sellBtn.disabled = G.currentProgress < flower.clicks;
+}
+
+function updateOpenSeedBtn() {
+  const btn = document.getElementById('open-seed-btn');
+  btn.disabled = G.seeds <= 0;
+}
+
+function updateAdBtn() {
+  const btn = document.getElementById('ad-btn');
+  const flower = getCurrentFlower();
+  if (!flower || flower.rarity < 2 || G.currentProgress < flower.clicks * 0.3) {
+    btn.style.display = 'none';
+    return;
+  }
+  if (G.dailyData.adCount >= 2) {
+    btn.style.display = 'none';
+    return;
+  }
+  if (G.adCooldown > Date.now()) {
+    btn.style.display = 'none';
+    return;
+  }
+  if (G.totalReductionUsed >= 50) {
+    btn.style.display = 'none';
+    return;
+  }
+  btn.style.display = 'flex';
+}
+
+function updateShareBtn() {
+  var label = document.getElementById('share-label');
+  if (!label) return;
+  var remaining = Math.max(0, 3 - G.dailyData.shareCount);
+  label.textContent = '500💰 · ' + remaining + '/3';
+}
+
+function updateComboDisplay() {
+  const el = document.getElementById('combo-display');
+  if (G.comboClicks >= 10) {
+    el.textContent = '🔥 ' + G.comboClicks + ' 连击！' + (G.comboClicks >= 10 ? ' 1.5x' : '');
+    el.className = 'combo-display active';
+  } else if (G.comboClicks > 0) {
+    el.textContent = G.comboClicks + ' 连击';
+    el.className = 'combo-display';
+  } else {
+    el.textContent = '';
+    el.className = 'combo-display';
+  }
+}
+
+function getSellPrice() {
+  const flower = getCurrentFlower();
+  if (!flower) return 0;
+  return flower.price;
+}
+
+// ============================================================
+//  COLLECTION BONUS - Adjusted Probabilities
+// ============================================================
+function getAdjustedProbabilities() {
+  // Normal 50%, others scaled proportionally from original 28:15:7
+  return { normal: 0.50, rare: 0.28, epic: 0.15, legendary: 0.07 };
+}
+
+function getSeedPrice() {
+  const epicCollected = FLOWERS.filter(f => f.rarity === 2 && G.collection[f.id]).length;
+  return epicCollected >= 10 ? 15 : 20;
+}
+
+// ============================================================
+//  ROLL FLOWER
+// ============================================================
+function rollFlowerByRarity(rarity) {
+  // Boost probability for uncollected flowers
+  const pool = FLOWERS.filter(f => f.rarity === rarity && !G.collection[f.id]);
+  const allPool = FLOWERS.filter(f => f.rarity === rarity);
+  const targetPool = pool.length > 0 ? pool : allPool;
+
+  // 80% collection boost: increase chance of uncollected
+  const collCount = getCollectedCount();
+  if (collCount >= Math.floor(TOTAL * 0.8) && pool.length > 0) {
+    // Higher chance to pick from uncollected pool
+    if (Math.random() < 0.7) {
+      return targetPool[Math.floor(Math.random() * targetPool.length)];
+    }
+    return allPool[Math.floor(Math.random() * allPool.length)];
+  }
+
+  var flower = targetPool[Math.floor(Math.random() * targetPool.length)];
+
+  // 5% chance: 三叶草 → 四叶草
+  if (flower && flower.id === 'clover' && Math.random() < 0.05) {
+    var fourleaf = FLOWERS.find(function(f) { return f.id === 'fourleaf'; });
+    if (fourleaf) flower = fourleaf;
+  }
+
+  return flower;
+}
+
+function rollFlowerRarity() {
+  const probs = getAdjustedProbabilities();
+  const r = Math.random();
+  if (r < probs.normal) return 0;
+  if (r < probs.normal + probs.rare) return 1;
+  if (r < probs.normal + probs.rare + probs.epic) return 2;
+  return 3;
+}
+
+// ============================================================
+//  GARDENING ACTIONS
+// ============================================================
+let comboTimer = null;
+
+function waterPlant() {
+  // If no flower planted, prompt to plant
+  if (!G.currentFlowerId) {
+    if (G.seeds > 0) {
+      openSeedShop();
+    } else {
+      openSeedShop();
+    }
+    return;
+  }
+
+  const flower = getCurrentFlower();
+  if (!flower) return;
+  if (G.currentProgress >= flower.clicks) {
+    showToast('花朵已经绽放啦！快去卖花吧～🌸');
+    return;
+  }
+
+  // Combo system
+  const now = Date.now();
+  if (now - G.lastClickTime < 1000 && G.lastClickTime > 0) {
+    G.comboClicks++;
+  } else {
+    G.comboClicks = 1;
+  }
+  G.lastClickTime = now;
+
+  clearTimeout(comboTimer);
+  comboTimer = setTimeout(() => { G.comboClicks = 0; updateComboDisplay(); saveGame(); }, 1000);
+
+  // Multiplier
+  let multiplier = 1;
+  if (G.comboClicks >= 10) multiplier = 1.5;
+
+  // Daily first bonus (10 drops doubled)
+  if (!G.dailyData.waterFirstDone) {
+    G.dailyData.waterFirstDone = true;
+    multiplier *= 2;
+    showToast('☀️ 今日首次浇水，10滴翻倍！');
+  }
+
+  G.currentProgress = Math.min(G.currentProgress + multiplier, flower.clicks);
+  G.dailyData.dailyWaterCount++;
+
+  // Daily task: water 3 times
+  if (G.dailyData.dailyWaterCount >= 3 && !G.dailyData.tasks.water3) {
+    G.dailyData.tasks.water3 = true;
+    G.coins += 2;
+    showToast('✅ 完成每日任务：浇水3次 +2💰');
+  }
+
+  // ===== TUTORIAL HOOKS =====
+  // Step 2: First water click
+  if (G.tutorialProgress === 2 && G.tutorialPhase === 'firstWater') {
+    G.tutorialPhase = 'watering';
+    setBreathGlow('water-btn', false);
+    showToast('💧 一滴水！继续浇，攒够50滴就能开花～');
+    saveGame();
+  }
+  // Step 3: 20% progress breakthrough
+  if (G.tutorialProgress === 2 && G.currentProgress >= flower.clicks * 0.20 && G.tutorialPhase === 'watering') {
+    G.tutorialProgress = 3;
+    G.tutorialPhase = 'growing';
+    showCelebration('🌱 发芽了！', 1500);
+    vibrate(10);
+    saveGame();
+  }
+  // Step 4 pre-bloom: set phase
+  if (G.currentProgress >= flower.clicks && G.tutorialProgress === 3) {
+    G.tutorialProgress = 4;
+    G.tutorialPhase = 'waitSell';
+    saveGame();
+  }
+  // ===== END TUTORIAL HOOKS =====
+
+  // Check bloom
+  if (G.currentProgress >= flower.clicks) {
+    bloomFlower();
+  }
+
+  // Vibrate
+  vibrate(10);
+
+  // Water splash particles
+  spawnWaterDrops(6);
+
+  // Water button ripple
+  var wb = document.getElementById('water-btn');
+  wb.classList.remove('ripple');
+  void wb.offsetWidth;
+  wb.classList.add('ripple');
+
+  // Bounce animation
+  const display = document.getElementById('flower-display');
+  display.classList.remove('bounce');
+  void display.offsetWidth;
+  display.classList.add('bounce');
+
+  saveGame();
+  updateUI();
+}
+
+function bloomFlower() {
+  const flower = getCurrentFlower();
+  if (!flower) return;
+  var isNewBloom = !G.collection[flower.id];
+  G.collection[flower.id] = true;
+  G.comboClicks = 0;
+  G.totalReductionUsed = 0;
+
+  // Bloom light
+  const light = document.getElementById('bloom-light');
+  light.classList.add('active');
+  setTimeout(() => light.classList.remove('active'), 800);
+
+  // Glow
+  const display = document.getElementById('flower-display');
+  display.classList.add('bloom-glow');
+  setTimeout(() => display.classList.remove('bloom-glow'), 600);
+
+  // Petals
+  spawnPetals(12);
+
+  // Vibration
+  if (flower.rarity === 3) vibrate(100);
+  else vibrate(50);
+
+  // === Bloom reward ===
+  var bloomReward = flower.price; // 3 / 25 / 120 / 800
+  G.coins += bloomReward;
+  coinFly(document.getElementById('flower-display'), bloomReward);
+
+  // Show settlement after bloom effects
+  setTimeout(function() {
+    showBloomSettle(flower, bloomReward);
+  }, 1500);
+
+  // New collection popup — after settlement
+  if (isNewBloom) {
+    setTimeout(function() { showBloomPopup(flower, flower.rarity); }, 3200);
+  }
+
+  // Collection completion check
+  const collCount = getCollectedCount();
+  if (collCount >= Math.floor(TOTAL * 0.8) && collCount < TOTAL) {
+    const remaining = TOTAL - collCount;
+    showToast('🌟 还差' + remaining + '朵就集齐了！');
+  }
+
+  showToast('🌸 ' + flower.name + ' 绽放了！');
+
+  // ===== TUTORIAL HOOK: Step 4 bloom → guide to sell =====
+  if (G.tutorialProgress === 4 && G.tutorialPhase === 'waitSell') {
+    showCelebration('🌸 开花啦！', 2000);
+    setTimeout(function() { runTutorialStep(4); }, 2200);
+  }
+  // ===== END TUTORIAL HOOK =====
+
+  saveGame();
+  updateUI();
+}
+
+// ============================================================
+//  SELL FLOWER
+// ============================================================
+function sellFlower() {
+  const flower = getCurrentFlower();
+  if (!flower || G.currentProgress < flower.clicks) {
+    showToast('花朵还没开呢～继续浇水吧！');
+    return;
+  }
+
+  const price = getSellPrice();
+  G.coins += price;
+  G.currentFlowerId = null;
+  G.currentProgress = 0;
+  G.comboClicks = 0;
+  G.totalReductionUsed = 0;
+
+  coinFly(document.getElementById('sell-btn'), price);
+  showToast('💰 卖出 ' + flower.name + '，获得 ' + price + ' 金币！');
+
+  // Daily task: sell 1 flower
+  if (!G.dailyData.tasks.sell1) {
+    G.dailyData.tasks.sell1 = true;
+    G.coins += 10;
+    showToast('✅ 完成每日任务：卖花1朵 +10💰');
+  }
+
+  closeAllModals();
+
+  // ===== TUTORIAL HOOK: Step 4 sell → Step 5 seed shop =====
+  if (G.tutorialProgress === 4 && G.tutorialPhase === 'waitSell') {
+    showCelebration('🎉 太棒了！你赚到了第一桶金！', 1800);
+    setTimeout(function() { runTutorialStep(5); }, 2000);
+  }
+  // ===== END TUTORIAL HOOK =====
+
+  saveGame();
+  updateUI();
+}
+
+// ============================================================
+//  SEED SHOP
+// ============================================================
+function buySeed() {
+  const price = getSeedPrice();
+  if (G.coins < price) {
+    showToast('金币不够哦～需要 💰' + price);
+    return;
+  }
+  G.coins -= price;
+  G.seeds++;
+  saveGame();
+  updateUI();
+  showToast('🌱 获得一包种子！');
+
+  // ===== TUTORIAL HOOK: auto-open after buying =====
+  if (G.tutorialProgress === 4 && G.tutorialPhase === 'waitBuy') {
+    setTimeout(function() { openSeed(); }, 600);
+  }
+  // ===== END TUTORIAL HOOK =====
+}
+
+function buyFreeSeed() {
+  // Free seed: always normal quality, auto-open, no storage
+  var rarity = 0;
+  var flower = rollFlowerByRarity(0);
+  if (!flower) { showToast('获取失败，请重试'); return; }
+
+  // Shake animation
+  const display = document.getElementById('seed-shop-display');
+  display.textContent = '🌱';
+  display.classList.remove('shake');
+  void display.offsetWidth;
+  display.classList.add('shake');
+
+  document.getElementById('open-result').style.display = 'none';
+
+  setTimeout(function() {
+    _showSeedResult(flower, rarity, display);
+  }, 300);
+}
+
+function updateFreeSeedBtn() {
+  var btn = document.getElementById('free-seed-btn');
+  if (!btn) return;
+  if (G.seeds > 0) {
+    btn.style.display = 'none';
+  } else {
+    btn.style.display = '';
+    btn.disabled = false;
+    btn.textContent = '🌿 免费领取（仅普通种子）';
+  }
+}
+
+// Shared result display + auto-plant logic
+function _showSeedResult(flower, rarity, display) {
+  const isNew = !G.collection[flower.id];
+  if (isNew) {
+    G.collection[flower.id] = true;
+    // Show celebratory popup for new collection
+    setTimeout(function() { showNewFlowerPopup(flower, rarity); }, 900);
+  }
+
+  display.textContent = getFlowerEmoji(flower);
+
+  // Auto-plant if pot is empty — works for both new and already-collected flowers
+  var existingFlower = getCurrentFlower();
+  var canPlant = !existingFlower;
+  if (canPlant) {
+    G.currentFlowerId = flower.id;
+    G.currentProgress = 0;
+    G.totalReductionUsed = 0;
+  }
+
+  const rarityNames = ['普通','稀有','史诗','传说'];
+  const rarityColors = ['var(--rare-n)','var(--rare-r)','var(--rare-e)','var(--rare-l)'];
+  const glowColor = rarityColors[rarity];
+
+  var plantMsg;
+  if (canPlant) {
+    plantMsg = '已自动种入花盆 🌱';
+  } else if (isNew) {
+    plantMsg = '已加入图鉴（可稍后种植）';
+  } else {
+    plantMsg = '已拥有，花盆已满';
+  }
+
+  const resultEl = document.getElementById('open-result');
+  resultEl.innerHTML = '<div class="result-glow" style="background:radial-gradient(circle at 50% 30%,' + glowColor + ' 0%,transparent 70%);opacity:0.35;position:absolute;inset:0;border-radius:18px;pointer-events:none;"></div>' +
+    '<span style="font-size:48px;position:relative;z-index:1;">' + getFlowerEmoji(flower) + '</span><br>' +
+    '<span style="color:' + glowColor + ';position:relative;z-index:1;">' + rarityNames[rarity] + ' · ' + flower.name + '</span><br>' +
+    '<span style="font-size:15px;color:var(--text-light);position:relative;z-index:1;">' + plantMsg + '</span>';
+  resultEl.style.display = 'block';
+  resultEl.style.animation = 'none';
+  void resultEl.offsetWidth;
+  resultEl.style.animation = 'resultReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+  // Vibration for legendary / epic
+  if (rarity === 3) {
+    vibrate(100);
+    spawnPetals(20);
+  } else if (rarity === 2) {
+    vibrate(30);
+    spawnPetals(8);
+  }
+
+  // Quality glow
+  resultEl.style.boxShadow = '0 0 24px ' + glowColor + ', 0 0 50px ' + glowColor;
+  setTimeout(function() { resultEl.style.boxShadow = ''; }, 2500);
+
+  // Check 80% completion
+  const collCount = getCollectedCount();
+  if (collCount >= Math.floor(TOTAL * 0.8) && collCount < TOTAL) {
+    showToast('🌟 还差' + (TOTAL - collCount) + '朵就集齐了！');
+  }
+}
+
+function openSeed() {
+  if (G.seeds <= 0) {
+    showToast('没有种子包了，先去购买吧～');
+    return;
+  }
+  G.seeds--;
+
+  // Shake animation
+  const display = document.getElementById('seed-shop-display');
+  display.textContent = '🌱';
+  display.classList.remove('shake');
+  void display.offsetWidth;
+  display.classList.add('shake');
+
+  // Roll (tutorial Step 5: guaranteed 樱花)
+  var rarity, flower;
+  if (G.tutorialProgress === 4 && G.tutorialPhase === 'waitBuy') {
+    rarity = 1;
+    flower = FLOWERS.find(function(f) { return f.id === 'cherry'; });
+  } else {
+    rarity = rollFlowerRarity();
+    flower = rollFlowerByRarity(rarity);
+  }
+
+  // Result display with delay
+  document.getElementById('open-result').style.display = 'none';
+
+  setTimeout(() => {
+    _showSeedResult(flower, rarity, display);
+
+    // ===== TUTORIAL HOOK: Step 5 cherry opened → end tutorial =====
+    if (G.tutorialProgress === 4 && G.tutorialPhase === 'waitBuy' && flower.id === 'cherry') {
+      showCelebration('✨ 哇！是樱花（稀有）！', 2000);
+      G.tutorialPhase = 'waitPlant';
+      saveGame();
+      setTimeout(function() {
+        showTooltip('🌸 新种子已种下，继续浇水吧！', 'pot-container', false, '知道了', function() {
+          dismissTooltip();
+          runTutorialStep(99);
+        });
+      }, 2200);
+    }
+    // ===== END TUTORIAL HOOK =====
+  }, 600);
+}
+
+// ============================================================
+//  FERTILIZER
+// ============================================================
+function buyFertilizer(type) {
+  var basePrice = type === 'small' ? 12 : 50;
+  var buys = type === 'small' ? G.fertSmallBuys : G.fertLargeBuys;
+  var price = basePrice * Math.pow(2, buys);
+  if (G.coins < price) {
+    showToast('金币不够哦～（下次购买需 ' + price + ' 金币）');
+    return;
+  }
+
+  G.coins -= price;
+  if (type === 'small') { G.fertilizerSmall++; G.fertSmallBuys++; }
+  else { G.fertilizerLarge++; G.fertLargeBuys++; }
+
+  var nextPrice = basePrice * Math.pow(2, type === 'small' ? G.fertSmallBuys : G.fertLargeBuys);
+  showToast('🧪 已购买' + (type==='small'?'小':'大') + '肥料 (下次 ' + nextPrice + '💰)');
+  saveGame();
+  updateUI();
+}
+
+function useFertilizer(type) {
+  var flower = getCurrentFlower();
+  if (!flower) { showToast('请先种一朵花～'); return; }
+
+  if (type === 'small' && G.fertilizerSmall <= 0) { showToast('没有小肥料了，去购买吧～'); return; }
+  if (type === 'large' && G.fertilizerLarge <= 0) { showToast('没有大肥料了，去购买吧～'); return; }
+
+  var reduction = type === 'small' ? 0.15 : 0.40;
+  var maxReduction = flower.clicks - G.currentProgress;
+  var reductionAmount = Math.min(Math.floor(flower.clicks * reduction), maxReduction);
+
+  if (reductionAmount <= 0) { showToast('花朵已经快开啦，不需要肥料了～'); return; }
+
+  if (type === 'small') G.fertilizerSmall--; else G.fertilizerLarge--;
+  G.currentProgress += reductionAmount;
+  showToast('🧪 使用肥料，进度 +' + reductionAmount);
+
+  if (G.currentProgress >= flower.clicks) {
+    G.currentProgress = flower.clicks;
+    bloomFlower();
+  }
+
+  closeModal('fert-shop-modal');
+  saveGame();
+  updateUI();
+}
+
+// ============================================================
+//  SHARE & AD (减负机制)
+// ============================================================
+function shareFlower() {
+  if (G.dailyData.shareCount >= 3) { showToast('今日分享次数已用完～'); return; }
+
+  var shareText = '🌸 我在「花语花园」养花，快来一起玩吧！🌱';
+  var flower = getCurrentFlower();
+  if (flower) {
+    shareText = '我在「花语花园」种了一朵' + flower.name + '！快来一起养花吧～ 🌱';
+  }
+
+  function applyShareReward() {
+    G.dailyData.shareCount++;
+    G.coins += 500;
+    showToast('📤 分享成功！+500💰（今日' + G.dailyData.shareCount + '/3）');
+    if (!G.dailyData.tasks.share1 && G.dailyData.shareCount >= 1) {
+      G.dailyData.tasks.share1 = true;
+      G.coins += 5;
+      showToast('✅ 完成每日任务：分享1次 +5💰');
+    }
+    saveGame();
+    updateUI();
+  }
+
+  // Try Web Share API (supports WeChat on mobile)
+  if (navigator.share) {
+    navigator.share({
+      title: '花语花园 🌸',
+      text: shareText,
+    }).then(function() {
+      applyShareReward();
+    }).catch(function(err) {
+      // User cancelled — still give reward
+      applyShareReward();
+    });
+  } else {
+    // Fallback: copy invite text to clipboard
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(shareText).then(function() {
+        showToast('📋 邀请语已复制，粘贴发给好友吧！');
+        applyShareReward();
+      }).catch(function() {
+        applyShareReward();
+      });
+    } else {
+      applyShareReward();
+    }
+  }
+}
+
+function watchAd() {
+  const flower = getCurrentFlower();
+  if (!flower) return;
+  if (flower.rarity < 2) return;
+  if (G.currentProgress < flower.clicks * 0.3) return;
+  if (G.dailyData.adCount >= 2) { showToast('今日广告次数已用完，明天再来吧～'); return; }
+  const totalAds = G.dailyData.adCount + (G.dailyData.seedAdDone ? 1 : 0);
+  if (totalAds >= 5) { showToast('今日广告次数已用完，明天再来吧～'); return; }
+  if (G.totalReductionUsed >= 50) { showToast('单朵花减免已达上限50%'); return; }
+
+  showRewardedAd((success) => {
+    if (!success) return;
+    G.dailyData.adCount++;
+    G.adCooldown = Date.now() + 60000;
+
+    const reduction = Math.floor(flower.clicks * 0.30);
+    const remainingReduction = Math.floor(flower.clicks * 0.50) - Math.floor(flower.clicks * G.totalReductionUsed / 100);
+    const actualReduction = Math.min(reduction, remainingReduction, flower.clicks - G.currentProgress);
+
+    G.currentProgress += actualReduction;
+    G.totalReductionUsed += 30;
+
+    showToast('📺 视频加速完成！进度 +' + actualReduction);
+
+    if (G.currentProgress >= flower.clicks) {
+      G.currentProgress = flower.clicks;
+      bloomFlower();
+    }
+
+    saveGame();
+    updateUI();
+  });
+}
+
+function watchSeedAd() {
+  const totalAds = G.dailyData.adCount + (G.dailyData.seedAdDone ? 1 : 0);
+  if (totalAds >= 5) { showToast('今日广告次数已用完，明天再来吧～'); return; }
+  if (G.dailyData.seedAdDone) { showToast('今日已看视频得种子～'); return; }
+
+  showRewardedAd((success) => {
+    if (!success) return;
+    G.dailyData.seedAdDone = true;
+    G.seeds++;
+    showToast('📺 获得种子包 ×1！');
+    saveGame();
+    updateUI();
+  });
+}
+
+// ============================================================
+//  OFFLINE CLAIM
+// ============================================================
+function claimOfflineDrops() {
+  const drops = calcOfflineProgress();
+  if (drops > 0 && G.currentFlowerId) {
+    const flower = getCurrentFlower();
+    if (flower) {
+      G.currentProgress = Math.min(G.currentProgress + drops, flower.clicks);
+      if (G.currentProgress >= flower.clicks) {
+        G.currentProgress = flower.clicks;
+        bloomFlower();
+      }
+    }
+  }
+  document.getElementById('offline-modal').classList.remove('active');
+  saveGame();
+  updateUI();
+}
+
+// ============================================================
+//  DAILY TASKS
+// ============================================================
+function openDailyTasks() {
+  updateBellBadge();
+  renderDailyTasks();
+  document.getElementById('tasks-modal').classList.add('active');
+}
+
+function renderDailyTasks() {
+  const tasks = [
+    { id:'water3', label:'浇水3次', reward:'2 💰', done: G.dailyData.tasks.water3, icon:'💧', action: '' },
+    { id:'share1', label:'分享1次', reward:'5 💰', done: G.dailyData.tasks.share1, icon:'📤', action: 'share' },
+    { id:'sell1', label:'卖出1朵花', reward:'10 💰', done: G.dailyData.tasks.sell1, icon:'🌸', action: 'sell' },
+  ];
+  let html = '';
+  tasks.forEach(t => {
+    var clickable = !t.done && t.action;
+    html += '<div class="task-item' + (t.done ? ' done' : '') + (clickable ? ' task-clickable' : '') + '"' +
+      (clickable ? ' onclick="doTaskAction(\'' + t.action + '\')"' : '') + '>' +
+      '<div class="task-info">' + t.icon + ' ' + t.label + '</div>' +
+      '<div class="task-reward">' + (t.done ? '✅ 已完成' : (clickable ? '👉 ' + t.reward : t.reward)) + '</div>' +
+    '</div>';
+  });
+  document.getElementById('tasks-list').innerHTML = html;
+}
+
+function doTaskAction(action) {
+  closeModal('tasks-modal');
+  if (action === 'share') {
+    setTimeout(function() { shareFlower(); }, 300);
+  } else if (action === 'sell') {
+    setTimeout(function() { openSellModal(); }, 300);
+  }
+}
+
+function updateBellBadge() {
+  var badge = document.getElementById('bell-badge');
+  if (!badge) return;
+  var t = G.dailyData.tasks || {};
+  var allDone = !!(t.water3 && t.share1 && t.sell1);
+  badge.style.setProperty('display', allDone ? 'none' : 'flex', 'important');
+}
+
+// ============================================================
+//  MODALS
+// ============================================================
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function closeAllModals() {
+  document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
+}
+
+// Close modals on overlay click
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('modal-overlay')) {
+    e.target.classList.remove('active');
+  }
+});
+
+function openSellModal() {
+  if (checkLockedTutorial('sell')) return;
+  if (!getCurrentFlower()) { showToast('花盆还是空的呢～'); return; }
+  updateUI();
+  openModal('sell-modal');
+}
+
+function openSeedShop() {
+  if (checkLockedTutorial('seed')) return;
+  updateUI();
+  renderRarityOdds();
+  var price = getSeedPrice();
+  document.getElementById('buy-seed-btn').textContent = '💰 ' + price + ' 购买种子包';
+  var priceRow = document.querySelector('#seed-shop-modal .shop-price-row');
+  if (priceRow) priceRow.innerHTML = '<span>💰 ' + price + ' 金币/包</span><span>🎒 拥有: <b id="seed-count-shop">' + G.seeds + '</b></span>';
+  openModal('seed-shop-modal');
+
+  // ===== TUTORIAL HOOK: Step 5 shop open → guide buy button =====
+  if (G.tutorialProgress === 4 && G.tutorialPhase === 'waitShop') {
+    G.tutorialPhase = 'waitBuy';
+    saveGame();
+    setTimeout(function() {
+      showTooltip('🌱 花20金币买一包种子，看看能开出什么吧！', 'buy-seed-btn', true, '购买', function() {
+        dismissTooltip();
+        buySeed();
+      });
+    }, 500);
+  }
+  // ===== END TUTORIAL HOOK =====
+}
+
+function openFertShop() {
+  if (checkLockedTutorial('fert')) return;
+  updateUI();
+  openModal('fert-shop-modal');
+}
+
+function renderRarityOdds() {
+  const probs = getAdjustedProbabilities();
+  const odds = document.getElementById('rarity-odds');
+  odds.innerHTML =
+    '<span class="odds-n">普通 ' + Math.round(probs.normal*100) + '%</span>' +
+    '<span class="odds-r">稀有 ' + Math.round(probs.rare*100) + '%</span>' +
+    '<span class="odds-e">史诗 ' + Math.round(probs.epic*100) + '%</span>' +
+    '<span class="odds-l">传说 ' + Math.round(probs.legendary*100) + '%</span>';
+}
+
+// ============================================================
+//  COLLECTION BOOK
+// ============================================================
+function openCollection(filter) {
+  renderCollection(typeof filter === 'string' ? filter : 'all');
+  openModal('collection-modal');
+}
+
+function renderCollection(filter) {
+  filter = filter || 'all';
+  const rarityNames = {0:'普通', 1:'稀有', 2:'史诗', 3:'传说'};
+
+  var rarityTags = ['rarity-n','rarity-r','rarity-e','rarity-l'];
+  let html = '';
+  FLOWERS.forEach(f => {
+    if (filter !== 'all' && f.rarity !== parseInt(filter)) return;
+    const collected = !!G.collection[f.id];
+    const isLegendary = f.rarity === 3;
+    var classes = 'collection-card';
+    if (collected) classes += ' collected ' + rarityTags[f.rarity];
+    if (isLegendary) classes += ' legendary';
+    html += '<div class="' + classes + '">';
+    if (collected) {
+      html += '<div class="card-emoji">' + getFlowerEmoji(f) + '</div>';
+      html += '<div class="card-name">' + f.name + '</div>';
+      html += '<div class="check-mark">✅</div>';
+    } else {
+      html += '<div class="card-emoji">❓</div>';
+      html += '<div class="card-name unfound">未发现</div>';
+    }
+    html += '</div>';
+  });
+
+  document.getElementById('collection-grid').innerHTML = html;
+
+  // Staggered card entry animation
+  document.querySelectorAll('#collection-grid .collection-card').forEach(function(card, i) {
+    card.style.animationDelay = (i * 0.015) + 's';
+  });
+
+  // Filter tab active state
+  document.querySelectorAll('#filter-tabs .filter-tab').forEach(function(tab) {
+    tab.classList.toggle('active', tab.dataset.filter === filter);
+  });
+
+  // Collection hint
+  var collCount = getCollectedCount();
+  var hint = document.getElementById('collection-hint');
+  hint.classList.remove('hint-gold', 'hint-complete');
+  if (collCount >= Math.floor(TOTAL * 0.8) && collCount < TOTAL) {
+    hint.textContent = '🌟 还差' + (TOTAL - collCount) + '朵就集齐了！';
+    hint.classList.add('hint-gold');
+  } else if (collCount >= TOTAL) {
+    hint.textContent = '🎉 恭喜集齐全部' + TOTAL + '种花！你是真正的花园大师！';
+    hint.classList.add('hint-complete');
+  } else {
+    hint.textContent = '已收集 ' + collCount + ' / ' + TOTAL + ' 种花';
+  }
+}
+
+// Filter tab clicks
+document.getElementById('filter-tabs').addEventListener('click', function(e) {
+  if (e.target.classList.contains('filter-tab')) {
+    renderCollection(e.target.dataset.filter);
+  }
+});
+
+// Status bar collection click → open collection
+document.querySelector('.stat-capsule:last-child')?.addEventListener?.('click', () => openCollection('all'));
+
+// Open collection from bottom of status bar
+document.getElementById('coll-progress-text').addEventListener('click', () => openCollection('all'));
+document.getElementById('coll-progress-fill').parentElement.addEventListener('click', () => openCollection('all'));
+
+// ============================================================
+//  TUTORIAL
+// ============================================================
+// ============================================================
+//  NEW TUTORIAL SYSTEM (5 steps)
+// ============================================================
+
+function showTooltip(text, targetId, arrowUp, btnText, btnAction) {
+  var tooltip = document.getElementById('tutorial-tooltip');
+  var content = document.getElementById('tooltip-text');
+  var btn = document.getElementById('tooltip-btn');
+  var dim = document.getElementById('tutorial-dim');
+
+  content.textContent = text;
+  tooltip.style.display = 'block';
+  dim.style.display = 'block';
+
+  if (arrowUp) tooltip.classList.add('arrow-up');
+  else tooltip.classList.remove('arrow-up');
+
+  if (btnText) {
+    btn.textContent = btnText;
+    btn.style.display = 'inline-block';
+    btn.onclick = btnAction || dismissTooltip;
+  } else {
+    btn.style.display = 'none';
+  }
+
+  // Position tooltip near target
+  var target = document.getElementById(targetId);
+  if (target) {
+    // Force layout so offsetWidth/Height are correct
+    var ttRect = tooltip.getBoundingClientRect();
+    var tw = ttRect.width || 260;
+    var th = ttRect.height || 100;
+    var tRect = target.getBoundingClientRect();
+    var left = Math.max(10, Math.min(tRect.left + tRect.width/2 - tw/2, window.innerWidth - tw - 10));
+    var top;
+    if (arrowUp) {
+      top = tRect.bottom + 12;
+    } else {
+      top = tRect.top - th - 12;
+    }
+    if (top < 10) { top = tRect.bottom + 12; tooltip.classList.add('arrow-up'); }
+    if (top + th > window.innerHeight - 10) {
+      top = tRect.top - th - 12;
+      tooltip.classList.remove('arrow-up');
+    }
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = top + 'px';
+  }
+}
+
+function dismissTooltip() {
+  var tooltip = document.getElementById('tutorial-tooltip');
+  var dim = document.getElementById('tutorial-dim');
+  tooltip.style.display = 'none';
+  dim.style.display = 'none';
+}
+
+function showCelebration(text, duration) {
+  var el = document.getElementById('celebration-text');
+  el.textContent = text;
+  el.style.opacity = '1';
+  el.style.animation = 'none';
+  void el.offsetWidth;
+  el.style.animation = 'celebIn ' + (duration/1000) + 's ease-out forwards';
+  setTimeout(function() { el.style.opacity = '0'; }, duration);
+}
+
+// Add celebration keyframe dynamically
+var celebStyle = document.createElement('style');
+celebStyle.textContent = '@keyframes celebIn { 0% { transform:translate(-50%,-50%) scale(0.5); opacity:0; } 30% { transform:translate(-50%,-50%) scale(1.15); opacity:1; } 60% { opacity:1; } 100% { transform:translate(-50%,-50%) scale(1); opacity:0; } }';
+document.head.appendChild(celebStyle);
+
+// ============================================================
+//  NEW FLOWER COLLECTION POPUP
+// ============================================================
+var nfAutoCloseTimer = null;
+
+function showNewFlowerPopup(flower, rarity) {
+  var overlay = document.getElementById('new-flower-overlay');
+  if (!overlay) return;
+
+  var rarityNames = ['普通','稀有','史诗','传说'];
+  var rarityColors = ['#A8D5BA','#81B5D8','#C9A8D4','#F5D78A'];
+  var rarityBgs = ['rgba(168,213,186,0.35)','rgba(129,181,216,0.35)','rgba(201,168,212,0.35)','rgba(245,215,138,0.5)'];
+  var rarityTexts = ['#3D7A4F','#3A6D8C','#6B4E7A','#8B6914'];
+  var msgs = ['一朵朴实的小花～','品质不错的花！','稀有的美丽花朵！','传说中的神花！！🌟'];
+
+  document.getElementById('nf-emoji').textContent = getFlowerEmoji(flower);
+  document.getElementById('nf-name').textContent = flower.name;
+  document.getElementById('nf-rarity').textContent = rarityNames[rarity];
+  document.getElementById('nf-msg').textContent = msgs[rarity];
+
+  // Set rarity accent color on card
+  var card = overlay.querySelector('.new-flower-card');
+  card.style.setProperty('--nf-accent', rarityColors[rarity]);
+  document.getElementById('nf-rarity').style.setProperty('--nf-rarity-bg', rarityBgs[rarity]);
+  document.getElementById('nf-rarity').style.setProperty('--nf-rarity-text', rarityTexts[rarity]);
+
+  // Particles: sparkles + confetti for all rarities, extra for higher
+  if (rarity === 3) {
+    vibrate(100);
+    spawnSparkles(24);
+    spawnConfetti(30);
+    spawnPetals(20);
+  } else if (rarity === 2) {
+    spawnSparkles(16);
+    spawnConfetti(20);
+    spawnPetals(12);
+  } else if (rarity === 1) {
+    spawnSparkles(10);
+    spawnConfetti(14);
+    spawnPetals(8);
+  } else {
+    spawnSparkles(6);
+    spawnConfetti(8);
+  }
+
+  // Show with animation
+  overlay.classList.add('active');
+  // Re-trigger card animation
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = 'popupIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, cardGlowPulse 2s ease-in-out 0.6s infinite';
+
+  // Auto-close
+  clearTimeout(nfAutoCloseTimer);
+  var autoClose = rarity === 3 ? 3500 : 2500;
+  nfAutoCloseTimer = setTimeout(function() { closeNewFlowerPopup(); }, autoClose);
+}
+
+function closeNewFlowerPopup() {
+  clearTimeout(nfAutoCloseTimer);
+  var overlay = document.getElementById('new-flower-overlay');
+  if (overlay) overlay.classList.remove('active');
+}
+
+// ============================================================
+//  BLOOM COLLECTION POPUP — super spectacular version
+// ============================================================
+var bpAutoCloseTimer = null;
+
+function showBloomPopup(flower, rarity) {
+  var overlay = document.getElementById('bloom-popup-overlay');
+  if (!overlay) return;
+
+  var rarityNames = ['普通','稀有','史诗','传说'];
+  var rarityColors = ['#A8D5BA','#81B5D8','#C9A8D4','#F5D78A'];
+  var rarityBgs = ['rgba(168,213,186,0.4)','rgba(129,181,216,0.4)','rgba(201,168,212,0.4)','rgba(245,215,138,0.55)'];
+  var rarityTexts = ['#3D7A4F','#3A6D8C','#6B4E7A','#8B6914'];
+  var msgs = ['一朵朴实的小花绽放了～','品质不错的花绽放了！','稀世美花绽放了！！','传说中的神花绽放了！！🌟👑'];
+
+  document.getElementById('bp-emoji').textContent = getFlowerEmoji(flower);
+  document.getElementById('bp-name').textContent = flower.name;
+  document.getElementById('bp-rarity').textContent = '🏵️ ' + rarityNames[rarity];
+  document.getElementById('bp-msg').textContent = msgs[rarity];
+
+  // Set rarity colors
+  var glow = overlay.querySelector('.bloom-emoji-glow');
+  if (glow) glow.style.setProperty('--bp-glow-color', rarityColors[rarity]);
+  document.getElementById('bp-rarity').style.setProperty('--bp-rarity-bg', rarityBgs[rarity]);
+  document.getElementById('bp-rarity').style.setProperty('--bp-rarity-text', rarityTexts[rarity]);
+
+  // Super particles!
+  screenFlash();
+  spawnSparkles(35);
+  spawnStarBurst(16);
+  spawnConfetti(24);
+  spawnPetals(26);
+
+  if (rarity === 3) {
+    vibrate(120);
+    setTimeout(function() { spawnSparkles(20); spawnStarBurst(10); }, 400);
+  } else if (rarity === 2) {
+    vibrate(60);
+    setTimeout(function() { spawnSparkles(12); spawnStarBurst(6); }, 400);
+  } else if (rarity === 1) {
+    vibrate(30);
+  }
+
+  // Show with animation
+  overlay.classList.add('active');
+  // Re-trigger burst
+  var burst = document.getElementById('bloom-burst');
+  if (burst) {
+    burst.style.animation = 'none';
+    void burst.offsetWidth;
+    burst.style.animation = 'burstExpand 0.8s ease-out forwards';
+  }
+
+  // Auto-close
+  clearTimeout(bpAutoCloseTimer);
+  var autoClose = rarity === 3 ? 5000 : 4000;
+  bpAutoCloseTimer = setTimeout(function() { closeBloomPopup(); }, autoClose);
+}
+
+function closeBloomPopup() {
+  clearTimeout(bpAutoCloseTimer);
+  var overlay = document.getElementById('bloom-popup-overlay');
+  if (overlay) overlay.classList.remove('active');
+}
+
+// ============================================================
+//  BLOOM SETTLEMENT — reward screen after blooming
+// ============================================================
+var bsAutoCloseTimer = null;
+
+function showBloomSettle(flower, reward) {
+  var overlay = document.getElementById('bloom-settle-overlay');
+  if (!overlay) return;
+
+  document.getElementById('bs-emoji').textContent = getFlowerEmoji(flower);
+  document.getElementById('bs-name').textContent = flower.name;
+  document.getElementById('bs-coins').textContent = '+' + reward;
+
+  // Particles for higher rarities
+  if (flower.rarity === 3) {
+    spawnSparkles(20);
+    spawnStarBurst(10);
+    vibrate(60);
+  } else if (flower.rarity === 2) {
+    spawnSparkles(10);
+    spawnStarBurst(5);
+  } else if (flower.rarity === 1) {
+    spawnSparkles(6);
+  }
+
+  // Show with animation
+  overlay.classList.add('active');
+
+  // Auto-close
+  clearTimeout(bsAutoCloseTimer);
+  var autoClose = flower.rarity === 3 ? 4000 : 3000;
+  bsAutoCloseTimer = setTimeout(function() { closeBloomSettle(); }, autoClose);
+}
+
+function closeBloomSettle() {
+  clearTimeout(bsAutoCloseTimer);
+  var overlay = document.getElementById('bloom-settle-overlay');
+  if (overlay) overlay.classList.remove('active');
+}
+
+function setBreathGlow(elementId, enable) {
+  var el = document.getElementById(elementId);
+  if (!el) return;
+  if (enable) el.classList.add('breath-glow');
+  else el.classList.remove('breath-glow');
+}
+
+function setButtonLock(btnId, locked) {
+  var btn = document.getElementById(btnId);
+  if (!btn) return;
+  if (locked) btn.classList.add('locked');
+  else btn.classList.remove('locked');
+}
+
+function checkLockedTutorial(action) {
+  // Never block — buttons are always enabled.
+  // Tutorial uses tooltip guidance instead of locking.
+  return false;
+}
+
+function skipTutorial() {
+  if (!confirm('跳过引导后，将直接进入自由模式，需要自己摸索哦～确定吗？')) return;
+  G.tutorialProgress = 5;
+  G.tutorialPhase = '';
+  dismissTooltip();
+  unlockAllButtons();
+  document.getElementById('celebration-text').style.opacity = '0';
+  saveGame();
+  updateUI();
+  showToast('🎉 进入自由模式！开始你的花园之旅吧～');
+}
+
+function unlockAllButtons() {
+  setButtonLock('nav-sell-btn', false);
+  setButtonLock('nav-seed-btn', false);
+  setButtonLock('nav-fert-btn', false);
+  setBreathGlow('nav-sell-btn', false);
+  setBreathGlow('nav-seed-btn', false);
+  setBreathGlow('water-btn', false);
+}
+
+// ----- Main tutorial step runner -----
+function runTutorialStep(step) {
+  dismissTooltip();
+  unlockAllButtons();
+
+  if (step === 1) {
+    // Step 1: Show initial tooltip pointing to pot
+    G.tutorialProgress = 1;
+    G.tutorialPhase = 'firstWater';
+    setButtonLock('nav-sell-btn', true);
+    setButtonLock('nav-seed-btn', true);
+    setButtonLock('nav-fert-btn', true);
+    showTooltip('🌱 这是一颗蒲公英种子，点击浇水让它发芽吧！', 'pot-container', false, '知道了', function() {
+      dismissTooltip();
+      setBreathGlow('water-btn', true);
+      G.tutorialProgress = 2;
+      saveGame();
+    });
+  }
+  else if (step === 4) {
+    // Step 4: After bloom, guide to sell
+    G.tutorialProgress = 4;
+    G.tutorialPhase = 'waitSell';
+    setButtonLock('nav-sell-btn', false);
+    setButtonLock('nav-seed-btn', true);
+    setButtonLock('nav-fert-btn', true);
+    setBreathGlow('nav-sell-btn', true);
+    showTooltip('💰 这朵花可以卖3金币，卖花才能买新种子哦～', 'nav-sell-btn', true, '卖掉换钱', function() {
+      dismissTooltip();
+      setBreathGlow('nav-sell-btn', false);
+      // Auto-sell for tutorial flow
+      sellFlower();
+    });
+  }
+  else if (step === 5) {
+    // Step 5: Guide to seed shop
+    G.tutorialProgress = 4; // stays 4 until seed is bought
+    G.tutorialPhase = 'waitShop';
+    setButtonLock('nav-sell-btn', false);
+    setButtonLock('nav-seed-btn', false);
+    setButtonLock('nav-fert-btn', true);
+    setBreathGlow('nav-seed-btn', true);
+    showTooltip('🌱 花20金币买一包种子，看看能开出什么吧！', 'nav-seed-btn', true, '去看看', function() {
+      dismissTooltip();
+      setBreathGlow('nav-seed-btn', false);
+      openSeedShop();
+    });
+  }
+  else if (step === 99) {
+    // Final end screen
+    G.tutorialProgress = 5;
+    G.tutorialPhase = '';
+    closeAllModals();
+    unlockAllButtons();
+    showTooltip('🎉 你已经学会了所有玩法！收集全部' + TOTAL + '种花，开始你的花园之旅吧！', 'pot-container', false, '开始种花！', function() {
+      dismissTooltip();
+      setBreathGlow('water-btn', false);
+      saveGame();
+      updateUI();
+    });
+  }
+  saveGame();
+  updateUI();
+}
+
+// ============================================================
+//  INITIALIZATION
+// ============================================================
+function init() {
+  loadGame();
+  checkDailyReset();
+
+  // If localStorage was empty, try IndexedDB mirror asynchronously
+  if (window._needIDBRestore) {
+    _idbLoad('main').then(function(idbData) {
+      if (idbData) {
+        try {
+          var saved = JSON.parse(idbData);
+          G = Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), saved);
+          G.dailyData = Object.assign({ date:'', waterFirstDone:false, dailyWaterCount:0, adCount:0, seedAdDone:false, shareCount:0, tasks:{water3:false,share1:false,sell1:false} }, G.dailyData||{});
+          G.dailyData.tasks = Object.assign({ water3:false, share1:false, sell1:false }, (G.dailyData||{}).tasks||{});
+          if (typeof G.tutorialPhase === 'undefined') G.tutorialPhase = '';
+          delete G.tutorialComplete; delete G.tutorialStep; delete G.firstLegendaryGiven;
+          if (G.tutorialProgress === 0) { G.tutorialProgress = 5; G.tutorialPhase = ''; }
+          // Also restore to localStorage so future loads find it
+          try { localStorage.setItem('flower_garden_v2', JSON.stringify(G)); } catch(e) {}
+          checkDailyReset();
+          updateUI();
+        } catch(e) {}
+      }
+    });
+  }
+
+  // Calculate offline progress
+  const offlineDrops = calcOfflineProgress();
+  if (offlineDrops > 0 && G.currentFlowerId) {
+    document.getElementById('offline-drops').textContent = offlineDrops;
+    setTimeout(() => openModal('offline-modal'), 600);
+  }
+
+  updateUI();
+
+  // Tutorial check: start tutorial if first time AND no existing progress
+  if (G.tutorialProgress === 0 && !G.currentFlowerId && G.coins === 0 && Object.keys(G.collection).length === 0) {
+    // Fresh game: start tutorial with dandelion and 17 coins
+    G.currentFlowerId = 'dandelion';
+    G.currentProgress = 0;
+    G.coins = 17;
+    G.tutorialProgress = 1;
+    G.tutorialPhase = 'firstWater';
+    saveGame();
+    updateUI();
+    setTimeout(function() { runTutorialStep(1); }, 1000);
+  } else if (G.tutorialProgress === 0) {
+    // Has existing game progress — skip tutorial entirely
+    G.tutorialProgress = 5;
+    G.tutorialPhase = '';
+    saveGame();
+    updateUI();
+  } else if (G.tutorialProgress < 5) {
+    // Resume tutorial from saved state
+    updateUI();
+    if (G.tutorialProgress === 1 && G.tutorialPhase === 'firstWater') {
+      setTimeout(function() { runTutorialStep(1); }, 600);
+    } else if (G.tutorialProgress === 2) {
+      // Resuming after first tooltip dismissed — re-apply breath glow on water button
+      setBreathGlow('water-btn', true);
+    } else if (G.tutorialProgress === 4 && G.tutorialPhase === 'waitSell') {
+      setTimeout(function() { runTutorialStep(4); }, 600);
+    } else if (G.tutorialProgress === 4 && G.tutorialPhase === 'waitShop') {
+      setTimeout(function() { runTutorialStep(5); }, 600);
+    } else if (G.tutorialProgress === 4 && G.tutorialPhase === 'waitBuy') {
+      // Re-show buy tooltip in seed shop
+      setTimeout(function() { openSeedShop(); }, 600);
+    } else if (G.tutorialProgress === 4 && G.tutorialPhase === 'waitPlant') {
+      // Re-show final plant tooltip
+      setTimeout(function() {
+        showTooltip('🌸 新种子已种下，继续浇水吧！', 'pot-container', false, '知道了', function() {
+          dismissTooltip();
+          runTutorialStep(99);
+        });
+      }, 600);
+    }
+  }
+
+  // Loading screen flower rotation
+  var loadingSprout = document.querySelector('.loading-sprout');
+  var flowerEmojis = ['🌼','🌸','🌺','🌻','🌷','🪷','🌹','💐','🌾','🪻','💮','🏵️'];
+  var flowerIdx = 0;
+  var flowerInterval = setInterval(function() {
+    loadingSprout.textContent = flowerEmojis[flowerIdx % flowerEmojis.length];
+    flowerIdx++;
+  }, 400);
+
+  // Hide loading screen
+  setTimeout(() => {
+    clearInterval(flowerInterval);
+    document.getElementById('loading-screen').classList.add('hidden');
+    document.getElementById('game-screen').style.display = 'flex';
+  }, 2000);
+
+  // Petal spawn interval
+  setInterval(() => {
+    if (Math.random() < 0.4) spawnPetals(1);
+  }, 8000);
+
+  // Collection click
+  document.getElementById('coll-progress-text').style.cursor = 'pointer';
+}
+
+// Start
+init();
+</script>
+</body>
+</html>
