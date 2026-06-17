@@ -1050,7 +1050,7 @@ body {
 
 /* ============ Bloom Collection Popup (flower blooming - SUPER spectacular) ============ */
 .bloom-popup-overlay {
-  position: fixed; inset: 0; z-index: 260;
+  position: fixed; inset: 0; z-index: 270;
   background: rgba(20,15,30,0.55); backdrop-filter: blur(6px);
   display: flex; align-items: center; justify-content: center;
   opacity: 0; visibility: hidden;
@@ -1654,9 +1654,6 @@ body {
   </div>
 </div>
 
-<!-- ============ Share Button (hidden trigger) ============ -->
-<button id="share-trigger" style="display:none;" onclick="shareFlower()"></button>
-
 <script>
 // ============================================================
 //  AD CONFIGURATION
@@ -1822,13 +1819,6 @@ function loadGame() {
       loaded = true;
     }
   } catch(e) { /* ignore */ }
-  // If localStorage was empty, try IndexedDB mirror
-  if (!loaded) {
-    try {
-      // Sync IDB check — we can't await in sync init, so we use a flag
-      // The actual IDB restore happens in init() if needed
-    } catch(e) {}
-  }
   // Apply migrations if we loaded data
   if (loaded) {
     G.dailyData = Object.assign({ date:'', waterFirstDone:false, dailyWaterCount:0, adCount:0, seedAdDone:false, shareCount:0, tasks:{water3:false,share1:false,sell1:false} }, G.dailyData||{});
@@ -2181,7 +2171,6 @@ function updateUI() {
   updateBellBadge();
   updateSeedAdBtn();
   updateFreeSeedBtn();
-  updateTutorialLocks();
 }
 
 function updateTutorialLocks() {
@@ -2420,11 +2409,7 @@ let comboTimer = null;
 function waterPlant() {
   // If no flower planted, prompt to plant
   if (!G.currentFlowerId) {
-    if (G.seeds > 0) {
-      openSeedShop();
-    } else {
-      openSeedShop();
-    }
+    openSeedShop();
     return;
   }
 
@@ -2719,11 +2704,8 @@ function _showSeedResult(flower, rarity, display) {
   resultEl.style.boxShadow = '0 0 24px ' + glowColor + ', 0 0 50px ' + glowColor;
   setTimeout(function() { resultEl.style.boxShadow = ''; }, 2500);
 
-  // Check 80% completion
-  const collCount = getCollectedCount();
-  if (collCount >= Math.floor(TOTAL * 0.8) && collCount < TOTAL) {
-    showToast('🌟 还差' + (TOTAL - collCount) + '朵就集齐了！');
-  }
+  saveGame();
+  updateUI();
 }
 
 function openSeed() {
