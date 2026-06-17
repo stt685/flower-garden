@@ -1358,58 +1358,6 @@ body {
 .offline-content { text-align: center; }
 .offline-drops { font-size: 48px; margin: 12px 0; }
 
-/* ============ Share Guide Overlay ============ */
-.share-guide-overlay {
-  position: fixed; inset: 0; z-index: 300;
-  background: rgba(0,0,0,0.72);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  opacity: 0; visibility: hidden;
-  transition: opacity 0.35s, visibility 0.35s;
-}
-.share-guide-overlay.active { opacity: 1; visibility: visible; }
-.share-guide-card {
-  background: #FFF; border-radius: 24px; padding: 32px 24px 24px;
-  text-align: center; max-width: 300px; width: 85%;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
-  animation: shareGuideIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
-  position: relative;
-}
-@keyframes shareGuideIn {
-  0% { transform: scale(0.8) translateY(20px); opacity: 0; }
-  100% { transform: scale(1) translateY(0); opacity: 1; }
-}
-.share-guide-arrow {
-  position: fixed; top: 8px; right: 20px; z-index: 301;
-  font-size: 48px;
-  animation: arrowBounce 0.8s ease-in-out infinite;
-  pointer-events: none;
-}
-@keyframes arrowBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-.share-guide-icon { font-size: 64px; margin-bottom: 12px; }
-.share-guide-title { font-size: 22px; font-weight: 900; color: var(--text); margin-bottom: 6px; }
-.share-guide-desc { font-size: 15px; color: var(--text-light); margin-bottom: 8px; line-height: 1.6; }
-.share-guide-steps {
-  text-align: left; margin: 12px 0 20px; padding: 0 12px;
-  font-size: 15px; color: var(--text); line-height: 2;
-}
-.share-guide-steps span { display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center; background: var(--btn); color: #fff; border-radius: 50%; font-size: 13px; font-weight: 700; margin-right: 8px; }
-.share-guide-btn {
-  display: block; width: 100%; padding: 16px 24px;
-  font-size: 18px; font-weight: 800; color: #fff;
-  border: none; border-radius: var(--btn-radius);
-  background: linear-gradient(180deg, #FAB98B, var(--btn), var(--btn-press));
-  box-shadow: 0 4px 0 var(--btn-shadow);
-  cursor: pointer; transition: all 0.12s ease; margin-top: 4px;
-}
-.share-guide-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--btn-shadow); }
-.share-guide-cancel {
-  background: none; border: none; color: #999; font-size: 14px;
-  margin-top: 12px; cursor: pointer; padding: 8px;
-}
-
 /* ============ Coin Fly ============ */
 .coin-fly {
   position: fixed; pointer-events: none; z-index: 250;
@@ -1703,23 +1651,6 @@ body {
       <div class="offline-drops">💧 <b id="offline-drops">0</b> 滴水</div>
       <button class="shop-btn" onclick="claimOfflineDrops()">💧 收下</button>
     </div>
-  </div>
-</div>
-
-<!-- ============ Share Guide Overlay (fallback for mobile) ============ -->
-<div class="share-guide-overlay" id="share-guide-overlay">
-  <div class="share-guide-arrow" id="share-guide-arrow">👆</div>
-  <div class="share-guide-card">
-    <div class="share-guide-icon">📤</div>
-    <div class="share-guide-title">分享给好友</div>
-    <div class="share-guide-desc">点击右上角菜单，发送给微信好友</div>
-    <div class="share-guide-steps">
-      <div><span>1</span> 点击右上角 <b>···</b> 或 <b>↗</b></div>
-      <div><span>2</span> 选择 <b>发送给朋友</b></div>
-      <div><span>3</span> 返回页面自动领奖 💰</div>
-    </div>
-    <button class="share-guide-btn" id="share-guide-done-btn" onclick="onShareGuideDone()">✅ 已分享，领取奖励</button>
-    <button class="share-guide-cancel" onclick="closeShareGuide()">取消</button>
   </div>
 </div>
 
@@ -2905,6 +2836,7 @@ function useFertilizer(type) {
 // ============================================================
 function shareFlower() {
   if (G.dailyData.shareCount >= 3) { showToast('今日分享次数已用完～'); return; }
+  closeAllModals();
 
   var shareText = '🌸 我在「花语花园」养花，快来一起玩吧！🌱';
   var flower = getCurrentFlower();
@@ -2914,13 +2846,20 @@ function shareFlower() {
   var shareLink = 'https://stt685.github.io/flower-garden/';
 
   function done() {
-    _giveShareReward();
+    G.dailyData.shareCount++;
+    G.coins += 500;
+    showToast('📤 分享成功！+500💰（今日' + G.dailyData.shareCount + '/3）');
+    if (!G.dailyData.tasks.share1 && G.dailyData.shareCount >= 1) {
+      G.dailyData.tasks.share1 = true;
+      G.coins += 5;
+      showToast('✅ 完成每日任务：分享1次 +5💰');
+    }
+    saveGame();
+    updateUI();
   }
 
-  // ========== 方案1：WeixinJSBridge（微信内置浏览器原生分享面板） ==========
-  var isWx = /MicroMessenger/i.test(navigator.userAgent);
-
-  if (isWx && typeof WeixinJSBridge !== 'undefined') {
+  // ========== 微信浏览器：WeixinJSBridge 直接唤起好友分享 ==========
+  if (typeof WeixinJSBridge !== 'undefined') {
     WeixinJSBridge.invoke('sendAppMessage', {
       title: '花语花园 🌸',
       desc: shareText,
@@ -2930,94 +2869,41 @@ function shareFlower() {
     return;
   }
 
-  // ========== 方案2：Web Share API（Safari/Chrome/部分微信版本） ==========
+  // WeixinJSBridge 可能尚未注入，微信环境内等待 ready 事件
+  if (/MicroMessenger/i.test(navigator.userAgent)) {
+    document.addEventListener('WeixinJSBridgeReady', function wxReady() {
+      document.removeEventListener('WeixinJSBridgeReady', wxReady);
+      WeixinJSBridge.invoke('sendAppMessage', {
+        title: '花语花园 🌸',
+        desc: shareText,
+        link: shareLink,
+        img_url: '',
+      }, function(res) { done(); });
+    });
+    return;
+  }
+
+  // ========== Web Share API（Safari / Chrome 手机端） ==========
   if (navigator.share) {
     navigator.share({
       title: '花语花园 🌸',
       text: shareText,
       url: shareLink,
     }).then(function() { done(); })
-      .catch(function() {
-        // Web Share 失败（微信可能拦截），显示引导蒙层
-        if (isWx) { showShareGuide(); }
-        else { done(); }
-      });
+      .catch(function() { done(); });
     return;
   }
 
-  // ========== 方案3：移动端显示引导蒙层 / 桌面端复制链接 ==========
-  var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if (isMobile) {
-    showShareGuide();
+  // ========== 桌面端兜底：复制链接 ==========
+  var fullText = shareText + '\n' + shareLink;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(fullText).then(function() {
+      showToast('📋 链接已复制，发给好友吧！');
+      done();
+    }).catch(function() { done(); });
   } else {
-    var fullText = shareText + '\n' + shareLink;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(fullText).then(function() {
-        showToast('📋 链接已复制！发给好友吧～');
-        done();
-      }).catch(function() { done(); });
-    } else { done(); }
+    done();
   }
-}
-
-// ========== 分享引导蒙层（移动端原生API不可用时的兜底方案） ==========
-function showShareGuide() {
-  G._sharePending = true;
-  document.getElementById('share-guide-overlay').classList.add('active');
-  document.addEventListener('visibilitychange', _onShareVisibility);
-  window.addEventListener('pageshow', _onShareVisibility);
-  window.addEventListener('pagehide', _onSharePageHide);
-}
-
-function hideShareGuide() {
-  document.getElementById('share-guide-overlay').classList.remove('active');
-  document.removeEventListener('visibilitychange', _onShareVisibility);
-  window.removeEventListener('pageshow', _onShareVisibility);
-  window.removeEventListener('pagehide', _onSharePageHide);
-}
-
-var _sharePageHidden = false;
-function _onSharePageHide() { _sharePageHidden = true; }
-
-function _onShareVisibility() {
-  if (document.visibilityState !== 'visible') return;
-  // 页面恢复可见，且之前被隐藏过（说明用户切出去分享了）
-  if (!_sharePageHidden) return;
-  _sharePageHidden = false;
-  if (!G._sharePending) return;
-  G._sharePending = false;
-  hideShareGuide();
-  closeAllModals();
-  // 延迟确保页面完全恢复
-  setTimeout(function() { _giveShareReward(); }, 500);
-}
-
-function onShareGuideDone() {
-  G._sharePending = false;
-  _sharePageHidden = false;
-  hideShareGuide();
-  closeAllModals();
-  _giveShareReward();
-}
-
-function closeShareGuide() {
-  G._sharePending = false;
-  _sharePageHidden = false;
-  hideShareGuide();
-}
-
-function _giveShareReward() {
-  if (G.dailyData.shareCount >= 3) { showToast('今日分享次数已用完～'); return; }
-  G.dailyData.shareCount++;
-  G.coins += 500;
-  showToast('📤 分享成功！+500💰（今日' + G.dailyData.shareCount + '/3）');
-  if (!G.dailyData.tasks.share1 && G.dailyData.shareCount >= 1) {
-    G.dailyData.tasks.share1 = true;
-    G.coins += 5;
-    showToast('✅ 完成每日任务：分享1次 +5💰');
-  }
-  saveGame();
-  updateUI();
 }
 
 function watchAd() {
