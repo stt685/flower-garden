@@ -2684,26 +2684,22 @@ function _showSeedResult(flower, rarity, display) {
 
   display.textContent = getFlowerEmoji(flower);
 
-  // Auto-plant if pot is empty — works for both new and already-collected flowers
+  // 直接种入花盆（替换旧花）
   var existingFlower = getCurrentFlower();
-  var canPlant = !existingFlower;
-  if (canPlant) {
-    G.currentFlowerId = flower.id;
-    G.currentProgress = 0;
-    G.totalReductionUsed = 0;
-  }
+  var replaced = !!existingFlower;
+  G.currentFlowerId = flower.id;
+  G.currentProgress = 0;
+  G.totalReductionUsed = 0;
 
   const rarityNames = ['普通','稀有','史诗','传说'];
   const rarityColors = ['var(--rare-n)','var(--rare-r)','var(--rare-e)','var(--rare-l)'];
   const glowColor = rarityColors[rarity];
 
   var plantMsg;
-  if (canPlant) {
-    plantMsg = '已自动种入花盆 🌱';
-  } else if (isNew) {
-    plantMsg = '已加入图鉴（可稍后种植）';
+  if (replaced) {
+    plantMsg = '已种入花盆（替换了' + existingFlower.emoji + existingFlower.name + '）';
   } else {
-    plantMsg = '已拥有，花盆已满';
+    plantMsg = '已自动种入花盆 🌱';
   }
 
   const resultEl = document.getElementById('open-result');
