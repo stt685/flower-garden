@@ -2836,7 +2836,6 @@ function useFertilizer(type) {
 // ============================================================
 function shareFlower() {
   if (G.dailyData.shareCount >= 3) { showToast('今日分享次数已用完～'); return; }
-  closeAllModals();
 
   var shareText = '🌸 我在「花语花园」养花，快来一起玩吧！🌱';
   var flower = getCurrentFlower();
@@ -2846,6 +2845,7 @@ function shareFlower() {
   var shareLink = 'https://stt685.github.io/flower-garden/';
 
   function done() {
+    closeAllModals();
     G.dailyData.shareCount++;
     G.coins += 500;
     showToast('📤 分享成功！+500💰（今日' + G.dailyData.shareCount + '/3）');
