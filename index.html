@@ -2835,9 +2835,6 @@ function useFertilizer(type) {
 //  SHARE & AD (减负机制)
 // ============================================================
 function shareFlower() {
-  // 关闭所有弹窗，确保分享面板不被遮挡
-  closeAllModals();
-
   if (G.dailyData.shareCount >= 3) { showToast('今日分享次数已用完～'); return; }
 
   var shareText = '🌸 我在「花语花园」养花，快来一起玩吧！🌱';
@@ -2845,6 +2842,8 @@ function shareFlower() {
   if (flower) {
     shareText = '🌸 我在「花语花园」种了一朵' + flower.emoji + flower.name + '！快来一起养花吧～ 🌱';
   }
+
+  var shareLink = 'https://stt685.github.io/flower-garden/';
 
   function applyShareReward() {
     G.dailyData.shareCount++;
@@ -2859,31 +2858,84 @@ function shareFlower() {
     updateUI();
   }
 
-  // Try Web Share API (supports WeChat on mobile — triggers native share panel with WeChat friends)
+  // 监听页面可见性变化：用户从分享面板返回后触发奖励
+  var rewarded = false;
+  function tryReward() {
+    if (!rewarded) { rewarded = true; applyShareReward(); }
+  }
+
+  // ========== 微信内置浏览器：使用 WeixinJSBridge 直接唤起好友分享 ==========
+  function doWxShare() {
+    closeAllModals();
+    WeixinJSBridge.invoke('sendAppMessage', {
+      title: '花语花园 🌸',
+      desc: shareText,
+      link: shareLink,
+      img_url: '',
+    }, function(res) {
+      tryReward();
+    });
+    // 兜底：用户从分享面板返回时，用页面可见性变化检测
+    document.addEventListener('visibilitychange', function onVis() {
+      if (document.visibilityState === 'visible') {
+        document.removeEventListener('visibilitychange', onVis);
+        setTimeout(tryReward, 500);
+      }
+    }, { once: false });
+  }
+
+  if (typeof WeixinJSBridge !== 'undefined') {
+    doWxShare();
+    return;
+  }
+
+  // WeixinJSBridge 可能还没注入完成（页面刚加载时），监听 ready 事件
+  if (/MicroMessenger/i.test(navigator.userAgent)) {
+    document.addEventListener('WeixinJSBridgeReady', function() {
+      if (rewarded) return;
+      doWxShare();
+    }, { once: true });
+    // 超时兜底：500ms 后如果 WeixinJSBridge 还没 ready，降级到 Web Share API
+    setTimeout(function() {
+      if (rewarded) return;
+      if (typeof WeixinJSBridge === 'undefined' && navigator.share) {
+        closeAllModals();
+        navigator.share({ title: '花语花园 🌸', text: shareText, url: shareLink }).then(tryReward).catch(tryReward);
+      } else if (typeof WeixinJSBridge !== 'undefined' && !rewarded) {
+        doWxShare();
+      }
+    }, 500);
+    return;
+  }
+
+  // ========== Web Share API（Safari / Chrome / iOS微信） ==========
   if (navigator.share) {
+    closeAllModals();
     navigator.share({
       title: '花语花园 🌸',
       text: shareText,
-      url: 'https://stt685.github.io/flower-garden/',
+      url: shareLink,
     }).then(function() {
-      applyShareReward();
+      tryReward();
     }).catch(function(err) {
-      // User cancelled or share failed — still give reward for trying
-      applyShareReward();
+      // 用户取消 — 仍然给奖励
+      tryReward();
+    });
+    return;
+  }
+
+  // ========== 兜底：复制链接 + 引导用户手动分享 ==========
+  closeAllModals();
+  var fullText = shareText + '\n' + shareLink;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(fullText).then(function() {
+      showToast('📋 链接已复制！去微信粘贴发给好友吧～');
+      tryReward();
+    }).catch(function() {
+      tryReward();
     });
   } else {
-    // Fallback: copy invite text + link to clipboard
-    var fullText = shareText + '\nhttps://stt685.github.io/flower-garden/';
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(fullText).then(function() {
-        showToast('📋 邀请语和链接已复制，去微信粘贴发给好友吧！');
-        applyShareReward();
-      }).catch(function() {
-        applyShareReward();
-      });
-    } else {
-      applyShareReward();
-    }
+    tryReward();
   }
 }
 
