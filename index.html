@@ -2675,13 +2675,7 @@ function updateFreeSeedBtn() {
 
 // Shared result display + auto-plant logic
 function _showSeedResult(flower, rarity, display) {
-  const isNew = !G.collection[flower.id];
-  if (isNew) {
-    G.collection[flower.id] = true;
-    // Show celebratory popup for new collection
-    setTimeout(function() { showNewFlowerPopup(flower, rarity); }, 900);
-  }
-
+  // 图鉴只在绽放时解锁，开种子包不记录图鉴
   display.textContent = getFlowerEmoji(flower);
 
   // 直接种入花盆（替换旧花）
