@@ -2858,84 +2858,65 @@ function shareFlower() {
     updateUI();
   }
 
-  // 监听页面可见性变化：用户从分享面板返回后触发奖励
   var rewarded = false;
-  function tryReward() {
-    if (!rewarded) { rewarded = true; applyShareReward(); }
+  function done() {
+    if (!rewarded) { rewarded = true; closeAllModals(); applyShareReward(); }
   }
 
-  // ========== 微信内置浏览器：使用 WeixinJSBridge 直接唤起好友分享 ==========
-  function doWxShare() {
-    closeAllModals();
+  // ========== 微信浏览器：WeixinJSBridge 直接唤起好友分享面板 ==========
+  if (typeof WeixinJSBridge !== 'undefined') {
     WeixinJSBridge.invoke('sendAppMessage', {
       title: '花语花园 🌸',
       desc: shareText,
       link: shareLink,
       img_url: '',
-    }, function(res) {
-      tryReward();
-    });
-    // 兜底：用户从分享面板返回时，用页面可见性变化检测
-    document.addEventListener('visibilitychange', function onVis() {
-      if (document.visibilityState === 'visible') {
-        document.removeEventListener('visibilitychange', onVis);
-        setTimeout(tryReward, 500);
-      }
-    }, { once: false });
-  }
-
-  if (typeof WeixinJSBridge !== 'undefined') {
-    doWxShare();
+    }, function(res) { done(); });
     return;
   }
 
-  // WeixinJSBridge 可能还没注入完成（页面刚加载时），监听 ready 事件
+  // WeixinJSBridge 可能尚未注入，等待 ready 事件
   if (/MicroMessenger/i.test(navigator.userAgent)) {
-    document.addEventListener('WeixinJSBridgeReady', function() {
+    document.addEventListener('WeixinJSBridgeReady', function wxReady() {
+      document.removeEventListener('WeixinJSBridgeReady', wxReady);
       if (rewarded) return;
-      doWxShare();
-    }, { once: true });
-    // 超时兜底：500ms 后如果 WeixinJSBridge 还没 ready，降级到 Web Share API
+      WeixinJSBridge.invoke('sendAppMessage', {
+        title: '花语花园 🌸',
+        desc: shareText,
+        link: shareLink,
+        img_url: '',
+      }, function(res) { done(); });
+    });
+    // 1秒超时：降级到 Web Share API
     setTimeout(function() {
       if (rewarded) return;
-      if (typeof WeixinJSBridge === 'undefined' && navigator.share) {
-        closeAllModals();
-        navigator.share({ title: '花语花园 🌸', text: shareText, url: shareLink }).then(tryReward).catch(tryReward);
-      } else if (typeof WeixinJSBridge !== 'undefined' && !rewarded) {
-        doWxShare();
+      if (navigator.share) {
+        navigator.share({ title: '花语花园 🌸', text: shareText, url: shareLink }).then(done).catch(done);
+      } else {
+        done();
       }
-    }, 500);
+    }, 1000);
     return;
   }
 
-  // ========== Web Share API（Safari / Chrome / iOS微信） ==========
+  // ========== Web Share API（Safari / Chrome / 其他浏览器） ==========
   if (navigator.share) {
-    closeAllModals();
     navigator.share({
       title: '花语花园 🌸',
       text: shareText,
       url: shareLink,
-    }).then(function() {
-      tryReward();
-    }).catch(function(err) {
-      // 用户取消 — 仍然给奖励
-      tryReward();
-    });
+    }).then(done).catch(done);
     return;
   }
 
-  // ========== 兜底：复制链接 + 引导用户手动分享 ==========
-  closeAllModals();
+  // ========== 兜底：复制链接 ==========
   var fullText = shareText + '\n' + shareLink;
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(fullText).then(function() {
       showToast('📋 链接已复制！去微信粘贴发给好友吧～');
-      tryReward();
-    }).catch(function() {
-      tryReward();
-    });
+      done();
+    }).catch(done);
   } else {
-    tryReward();
+    done();
   }
 }
 
