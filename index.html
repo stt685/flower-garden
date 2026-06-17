@@ -2663,22 +2663,24 @@ function _showSeedResult(flower, rarity, display) {
   // 图鉴只在绽放时解锁，开种子包不记录图鉴
   display.textContent = getFlowerEmoji(flower);
 
-  // 直接种入花盆（替换旧花）
+  // 花盆空才种入，有花则不替换
   var existingFlower = getCurrentFlower();
-  var replaced = !!existingFlower;
-  G.currentFlowerId = flower.id;
-  G.currentProgress = 0;
-  G.totalReductionUsed = 0;
+  var canPlant = !existingFlower;
+  if (canPlant) {
+    G.currentFlowerId = flower.id;
+    G.currentProgress = 0;
+    G.totalReductionUsed = 0;
+  }
 
   const rarityNames = ['普通','稀有','史诗','传说'];
   const rarityColors = ['var(--rare-n)','var(--rare-r)','var(--rare-e)','var(--rare-l)'];
   const glowColor = rarityColors[rarity];
 
   var plantMsg;
-  if (replaced) {
-    plantMsg = '已种入花盆（替换了' + existingFlower.emoji + existingFlower.name + '）';
-  } else {
+  if (canPlant) {
     plantMsg = '已自动种入花盆 🌱';
+  } else {
+    plantMsg = '花盆已有' + existingFlower.emoji + existingFlower.name + '，未种植';
   }
 
   const resultEl = document.getElementById('open-result');
